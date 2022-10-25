@@ -8,11 +8,21 @@
 \renewcommand*\familydefault{\sfdefault}
 \usepackage{inconsolata}
 
+
+\usepackage{minted}
+\newcommand{\code}[1]{\texttt{#1}}
+\newcommand{\cpp}[1]{\mintinline[breaklines]{java}{#1}}
+
 %%%%%%%%%%%%%%%%%%
 % Other packages %
 %%%%%%%%%%%%%%%%%%
-\usepackage{minted}
 \usepackage{microtype}
+\usepackage{mdframed}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{tikz}
+\usepackage{float}
+\usepackage{cleveref}
 
 \title{Notes on Ray Tracing in One Weekend}
 \author{Junyi Li}
@@ -56,7 +66,7 @@ Note that the scene is not explicitly initialized here, as a default constructor
 \subsection{Pixel Data}
 
 Pixels are represented in either RGBA or ABGR format, depending on your platform.
-Each pixel is a 32-bit integer, with 8 bits per channel.
+Each pixel is a 32-bit integer, with 8 bits per channel; thus an int vector suffices to store the entire image.
 Assuming we already have the values of each channel, we can write the pixel using the correct format like so:
 
 \begin{minted}[linenos]{cpp}
@@ -67,7 +77,8 @@ Assuming we already have the values of each channel, we can write the pixel usin
 #endif
 \end{minted}
 
-To send the pixel data to SDL2:
+The snippet below shows how to send the pixel data to SDL2.
+The main thing to note is that we pass it a pointer to the pixel vector.
 
 \begin{minted}[linenos]{cpp}
 SDL_UpdateTexture(texture_, nullptr, pixels_.data(), w_ * sizeof(uint32_t));
@@ -75,5 +86,105 @@ SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
 SDL_RenderPresent(renderer_);
 \end{minted}
 
+\begin{mdframed}
+The pixel buffer should be distinguished from the \emph{viewport}.
+The latter is a virtual canvas of unit square ``pixels'' through which we aim our rays into the world.
+More on this later.
+\end{mdframed}
+
+\subsection{Coordinate Systems}
+\label{sec:coords}
+
+To keep things simple, we only need to care about two coordinates.
+
+\begin{enumerate}
+
+\item \textbf{World coordinates.}
+This is the usual $xyz$ coordinates represented by vec3.
+
+\item \textbf{$uv$ coordinates.}
+These are coordinates on the viewport of our raytracer.
+\end{enumerate}
+
+World coordinates are straightforward so not much will be said about that.
+The $uv$ coordinates can be defined in a few different ways, and which one you use is simply a matter of personal preference, I think.
+They can be thought of as $xy$ axes on the viewport, and are depicted in \Cref{fig:uv-coord}.
+
+Note that the values for $u$ and $v$ fall within $[-1,1]$.
+What we easily have are the dimensions of our image, say, $m \times n$.
+Thus we can view each pixel of the image as a cell in a $m \times n$ matrix.
+The scaling required to get $u$ and $v$ is simply
+\[
+u \gets \frac{2j}{n} - 1 \text{ and } v \gets \frac{2i}{m} - 1.
+\]
+We typically also store a $\hat u$ and $\hat v$ vector.
+The length of these vectors should be half the width and height respectively, and its easy to see why.
+Given a $(u,v)$ coordinate, and $O$ the center of our viewport \emph{in world space}, we can compute the world coordinates of the $(u,v)$ coordinate using $(O+u\hat u, O + v\hat v)$.
+
+\begin{figure}
+\centering
+\begin{tikzpicture}
+    \draw (0,0) rectangle (6,4) node[pos=.5] {$(0,0)$} node[pos=below,yshift=-3mm] {$(-1,1)$} node[above] {$(1,-1)$};
+    \draw[->,thick] (4.3,2) -- node[above=1mm] {$\hat u$} (5.3,2);
+    \draw[->,thick] (3,1.5) -- node[right=1mm] {$\hat v$} (3,.5);
+\end{tikzpicture}
+\caption{The viewport, with its origin at the center and directions of the $u$ and $v$ vectors shown.}
+\label{fig:uv-coord}
+\end{figure}
+
+\section{Spheres}
+
+The equation for a point on the sphere can be described as
+\[
+(P-C)\cdot(P-C) = r^2
+\]
+where $P$ is the point on the sphere, $C$ the center, and $r$ its radius.
+Note that $P$ and $C$ are vectors here.
+To check if a ray intersects a sphere, we just need to substitute $p$ with the equation of the ray.
+
+Recall that a ray is just a line, defined like $A+tb$, where $A$ is its origin, $b$ its direction vector, and $t$ any real number.
+Thus we get the substitution
+\[
+(A+tb-C)\cdot(A+tb-C) = r^2.
+\]
+A short expansion gives us
+\[
+b\cdot b t^2 + 2(A-C)\cdot b t + (A-C)\cdot (A-C) - r^2 = 0,
+\]
+which is just a quadratic equation in $t$.
+Solving this equation will tell us the point(s) of intersection, if they exist.
+
+\begin{mdframed}
+It is also useful to compute the normal at the intersection point.
+For a sphere, this is just $I - C$, where $I$ is the intersection point and $C$ the center.
+\end{mdframed}
+
+\section{Antialiasing}
+
+The objects in our scene exist in $\mathbb{R}^3$.
+But our rays go from camera to viewport in a discrete fashion, from pixel to pixel; in fact, each ray is going through the center of the pixel.
+\footnote{This depends on how the $uv$ coordinate system in the viewport is defined. 
+Peter Shirley defines the lower left corner as $(0,0)$, so each ray will travel through the lower left corner of each pixel.
+In my attempt I defined it in the same way as shadertoy.com, using the viewport's center as $(0,0)$ instead.}
+The result is an image which, when zoomed in, reveals jagged edges, since the color of each pixel is determined solely by the color found at its very center.
+
+Antialiasing is a way to fix this visual defect.
+Instead of shooting just one ray through each pixel, we shoot $n > 1$ rays to random points within that pixel, with the final color of that pixel being the average across all $n$ rays.
+
+Suppose our pixel was represented by an $ij$ coordinate (kinda like a matrix), then the snippet below describes how to compute the $uv$ coordinates.
+Note that the \cpp{scale_u()} and \cpp{scale_v()} functions perform the scaling described in \Cref{sec:coords}.
+
+\begin{minted}[linenos]{cpp}
+// n is the number of samples per pixel
+for (int s = 0; s < n; i++)
+{
+    // rand() produces a random double in [0, 1)
+    double u = scale_u(i + rand());
+    double v = scale_v(j + rand());
+    // --snip--
+}
+\end{minted}
+
+\section{Diffuse Materials}
 
 \end{document}
