@@ -65,7 +65,7 @@ Scene::Scene() : samples_per_pixel_(SAMPLES_PER_PIXEL_DEFAULT), max_depth_(MAX_D
     camera_.look_at_ = point(0, 0, 0);
     camera_.vfov_ = glm::radians(20.0);
     camera_.focus_dist_ = 10.0;
-    camera_.Refresh();
+    camera_.RefreshAll();
 
     AddRandomObjects(world_);
 }
@@ -79,11 +79,11 @@ void Scene::Render(Image &image)
     int h = image.h(), w = image.w();
     if (h != h_ || w != w_)
     {
-        // need to update camera's aspect ratio
+        // if the image target does not match our cached dimensions, we'll need to update camera's aspect ratio
         h_ = h;
         w_ = w;
         camera_.aspect_ratio_ = static_cast<double>(w_) / static_cast<double>(h_);
-        camera_.Refresh(); // TODO: this can be optimized, not everything needs to be refreshed, I think
+        camera_.RefreshViewport();
     }
     for (int i = 0; i < h; i++)
     {
