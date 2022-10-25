@@ -4,7 +4,7 @@
 static struct argp_option options[] = {
     {"samples", 's', "NUM_SAMPLES", 0, "Number of samples per pixel"},
     {"maxdepth", 'm', "MAX_DEPTH", 0, "The maximum recursion depth when bouncing rays"},
-    {"res", 'r', "RES", 0, "Initial screen resolution, e.g. 1280x720"},
+    {"res", 'r', "RESOLUTION", 0, "Initial screen resolution, e.g. 1280x720"},
     {0},
 };
 

@@ -7,6 +7,7 @@
 #define MAX_DEPTH_DEFAULT 50
 #define RES_W_DEFAULT 1280
 #define RES_H_DEFAULT 720
+#define VFOV_DEFAULT 0.34906585 // 20 degrees
 
 using color = glm::dvec4;
 using point = glm::dvec3;

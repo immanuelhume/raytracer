@@ -3,14 +3,13 @@
 
 // put some reasonable defaults
 App::App()
-    : is_running_(true), w_(RES_W_DEFAULT), h_(RES_H_DEFAULT), samples_per_pixel_(SAMPLES_PER_PIXEL_DEFAULT),
-      max_depth_(MAX_DEPTH_DEFAULT)
+    : is_running_(true), opts_{RES_W_DEFAULT, RES_H_DEFAULT, SAMPLES_PER_PIXEL_DEFAULT, MAX_DEPTH_DEFAULT, VFOV_DEFAULT}
 {
     // let the SDL2 stuff be initialized through OnInit
 }
 
 App::App(int w, int h, int samples_per_pixel, int max_depth)
-    : is_running_(true), w_(w), h_(h), samples_per_pixel_(samples_per_pixel), max_depth_(max_depth)
+    : is_running_(true), opts_{w, h, samples_per_pixel, max_depth, VFOV_DEFAULT}
 {
     // let the SDL2 stuff be initialized through OnInit
 }
@@ -47,7 +46,8 @@ bool App::OnInit()
     }
 
     // TODO: make resizable
-    window_ = SDL_CreateWindow("Yet Another Ray Tracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, w_, h_, 0);
+    window_ =
+        SDL_CreateWindow("Yet Another Ray Tracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, opts_.w, opts_.h, 0);
 
     if (!window_)
     {
@@ -61,9 +61,9 @@ bool App::OnInit()
         return false;
     }
 
-    image_.Init(w_, h_, renderer_);
-    scene_.samples_per_pixel_ = samples_per_pixel_;
-    scene_.max_depth_ = max_depth_;
+    image_.Init(opts_.w, opts_.h, renderer_);
+    scene_.samples_per_pixel_ = opts_.samples_per_pixel;
+    scene_.max_depth_ = opts_.max_depth;
 
     return true;
 }

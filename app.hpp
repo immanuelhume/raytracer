@@ -5,6 +5,15 @@
 #include "lib/pch.hpp"
 #include "lib/scene.hpp"
 
+struct ConfigOpts
+{
+    int w, h;
+    int samples_per_pixel;
+    int max_depth;
+    // verticle field of vision, in radians
+    double vfov;
+};
+
 class App
 {
   public:
@@ -23,9 +32,7 @@ class App
     void OnExit();
 
   private:
-    int w_, h_;
-    int samples_per_pixel_;
-    int max_depth_;
+    ConfigOpts opts_;
     bool is_running_;
 
     SDL_Window *window_;
