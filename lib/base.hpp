@@ -2,9 +2,16 @@
 #define BASE_H
 
 #include <cstdlib>
-#include <glm/glm.hpp>
+#include <glm/vec3.hpp>
+#include <glm/vec4.hpp>
 #include <iostream>
 #include <limits>
+#include <math.h>
+
+#define SAMPLES_PER_PIXEL_DEFAULT 1
+#define MAX_DEPTH_DEFAULT 50
+#define RES_W_DEFAULT 1280
+#define RES_H_DEFAULT 720
 
 using color = glm::dvec4;
 using point = glm::dvec3;

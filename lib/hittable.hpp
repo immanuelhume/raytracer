@@ -3,6 +3,7 @@
 
 #include "base.hpp"
 #include "ray.hpp"
+#include <glm/geometric.hpp>
 #include <memory>
 
 namespace rtc
@@ -37,7 +38,7 @@ class HitRecord
     std::shared_ptr<Material> mat_;
 
   private:
-    vec3 normal_;     // always points towards to ray
+    vec3 normal_;     // always points towards the ray
     bool front_face_; // true if the ray intersects from outside
 };
 

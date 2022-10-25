@@ -1,4 +1,5 @@
 #include "image.hpp"
+#include <glm/common.hpp>
 
 using namespace rtc;
 

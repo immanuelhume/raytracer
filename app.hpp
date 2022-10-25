@@ -9,7 +9,9 @@ class App
 {
   public:
     App();
+    App(int w, int h, int samples_per_pixel, int max_depth);
 
+    // starts the app
     int Spin();
 
   private:
@@ -21,7 +23,11 @@ class App
     void OnExit();
 
   private:
+    int w_, h_;
+    int samples_per_pixel_;
+    int max_depth_;
     bool is_running_;
+
     SDL_Window *window_;
     SDL_Renderer *renderer_;
 

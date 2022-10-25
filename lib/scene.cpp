@@ -1,10 +1,7 @@
 #include "scene.hpp"
 #include "base.hpp"
-#include "dielectric.hpp"
 #include "hittable.hpp"
-#include "lambertian.hpp"
 #include "material.hpp"
-#include "metal.hpp"
 #include "sphere.hpp"
 #include <cmath>
 #include <glm/gtc/random.hpp>
@@ -66,7 +63,7 @@ void AddRandomObjects(HittableList &list)
     list.Add(std::make_shared<Sphere>(point(4, 1, 0), 1.0, material3));
 }
 
-Scene::Scene() : samples_per_pixel_(1), max_depth_(50)
+Scene::Scene() : samples_per_pixel_(SAMPLES_PER_PIXEL_DEFAULT), max_depth_(MAX_DEPTH_DEFAULT)
 {
     camera_.look_from_ = point(13, 2, 3);
     camera_.look_at_ = point(0, 0, 0);
@@ -84,6 +81,14 @@ Scene::~Scene()
 void Scene::Render(Image &image)
 {
     int h = image.h(), w = image.w();
+    if (h != h_ || w != w_)
+    {
+        // need to update camera's aspect ratio
+        h_ = h;
+        w_ = w;
+        camera_.aspect_ratio_ = static_cast<double>(w_) / static_cast<double>(h_);
+        camera_.Refresh(); // TODO: this can be optimized, not everything needs to be refreshed, I think
+    }
     for (int i = 0; i < h; i++)
     {
         for (int j = 0; j < w; j++)

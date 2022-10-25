@@ -23,9 +23,10 @@ class Scene
   public:
     int samples_per_pixel_;
     int max_depth_;
+    HittableList world_;
 
   private:
-    HittableList world_;
+    int w_, h_;
     Camera camera_;
 };
 
