@@ -1,5 +1,4 @@
 #include "sphere.hpp"
-#include <glm/gtx/norm.hpp>
 
 using namespace rtc;
 
@@ -18,9 +17,9 @@ Sphere::~Sphere()
 bool Sphere::Hit(const Ray &ray, double tmin, double tmax, HitRecord &record) const
 {
     vec3 oc = ray.origin_ - center_;
-    double a = glm::length2(ray.dir_);
+    double a = glm::dot(ray.dir_, ray.dir_);
     double half_b = glm::dot(oc, ray.dir_);
-    double c = glm::length2(oc) - radius_ * radius_;
+    double c = glm::dot(oc, oc) - radius_ * radius_;
     double discriminant = half_b * half_b - a * c;
 
     if (discriminant < 0)

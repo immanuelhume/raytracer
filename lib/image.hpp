@@ -2,8 +2,6 @@
 #define IMAGE_H
 
 #include "base.hpp"
-#include <SDL2/SDL.h>
-#include <vector>
 
 namespace rtc
 {

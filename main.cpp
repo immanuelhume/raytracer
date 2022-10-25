@@ -1,8 +1,5 @@
 #include "app.hpp"
 #include "lib/base.hpp"
-#include <argp.h>
-#include <cstdlib>
-#include <regex>
 
 static struct argp_option options[] = {
     {"samples", 's', "NUM_SAMPLES", 0, "Number of samples per pixel"},

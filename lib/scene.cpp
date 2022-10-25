@@ -3,11 +3,7 @@
 #include "hittable.hpp"
 #include "material.hpp"
 #include "sphere.hpp"
-#include <cmath>
 #include <glm/gtc/random.hpp>
-#include <glm/gtx/norm.hpp>
-#include <iostream>
-#include <limits>
 
 using namespace rtc;
 

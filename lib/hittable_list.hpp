@@ -2,8 +2,6 @@
 #define HITTABLE_LIST_H
 
 #include "hittable.hpp"
-#include <memory>
-#include <vector>
 
 namespace rtc
 {

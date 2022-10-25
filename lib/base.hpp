@@ -1,12 +1,7 @@
 #ifndef BASE_H
 #define BASE_H
 
-#include <cstdlib>
-#include <glm/vec3.hpp>
-#include <glm/vec4.hpp>
-#include <iostream>
-#include <limits>
-#include <math.h>
+#include "pch.hpp"
 
 #define SAMPLES_PER_PIXEL_DEFAULT 1
 #define MAX_DEPTH_DEFAULT 50

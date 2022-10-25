@@ -1,5 +1,4 @@
 #include "hittable_list.hpp"
-#include <iostream>
 
 using namespace rtc;
 

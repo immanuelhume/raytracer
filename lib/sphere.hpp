@@ -2,7 +2,6 @@
 #define SPHERE_H
 
 #include "hittable.hpp"
-#include <memory>
 
 namespace rtc
 {

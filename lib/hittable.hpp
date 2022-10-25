@@ -3,8 +3,6 @@
 
 #include "base.hpp"
 #include "ray.hpp"
-#include <glm/geometric.hpp>
-#include <memory>
 
 namespace rtc
 {

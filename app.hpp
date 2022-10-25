@@ -2,8 +2,8 @@
 #define APP_H
 
 #include "lib/image.hpp"
+#include "lib/pch.hpp"
 #include "lib/scene.hpp"
-#include <SDL2/SDL.h>
 
 class App
 {

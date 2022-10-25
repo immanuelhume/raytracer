@@ -1,7 +1,5 @@
 #include "camera.hpp"
 #include "base.hpp"
-#include <glm/gtc/random.hpp>
-#include <glm/vec2.hpp>
 
 using namespace rtc;
 
