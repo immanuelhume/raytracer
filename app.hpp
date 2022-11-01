@@ -2,7 +2,6 @@
 #define APP_H
 
 #include "lib/image.hpp"
-#include "lib/pch.hpp"
 #include "lib/scene.hpp"
 
 struct ConfigOpts
@@ -21,7 +20,7 @@ class App
     App(int w, int h, int samples_per_pixel, int max_depth);
 
     // starts the app
-    int Spin();
+    int Spin(std::function<void(rtc::Scene &)>);
 
   private:
     // initializes SDL2 and other resources and returns whether it was successful
@@ -30,6 +29,9 @@ class App
     void OnEvent(const SDL_Event &event);
     void OnRender();
     void OnExit();
+
+  public:
+    std::function<void(rtc::Scene &)> set_up_scene_;
 
   private:
     ConfigOpts opts_;

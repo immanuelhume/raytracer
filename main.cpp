@@ -1,5 +1,6 @@
 #include "app.hpp"
 #include "lib/base.hpp"
+#include "lib/scene.hpp"
 
 static struct argp_option options[] = {
     {"samples", 's', "NUM_SAMPLES", 0, "Number of samples per pixel"},
@@ -60,5 +61,5 @@ int main(int argc, char *argv[])
     argp_parse(&argp, argc, argv, 0, 0, &args);
 
     App app(args.w, args.h, args.samples, args.max_depth);
-    return app.Spin();
+    return app.Spin(rtc::SetUpScene_1);
 }

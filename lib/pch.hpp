@@ -7,6 +7,7 @@
 
 #include <argp.h>
 #include <cstdlib>
+#include <functional>
 #include <iostream>
 #include <limits>
 #include <math.h>

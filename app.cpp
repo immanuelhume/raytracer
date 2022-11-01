@@ -1,21 +1,25 @@
 #include "app.hpp"
 #include "lib/base.hpp"
+#include "lib/scene.hpp"
 
 // put some reasonable defaults
 App::App()
-    : is_running_(true), opts_{RES_W_DEFAULT, RES_H_DEFAULT, SAMPLES_PER_PIXEL_DEFAULT, MAX_DEPTH_DEFAULT, VFOV_DEFAULT}
+    : is_running_(true), opts_{RES_W_DEFAULT, RES_H_DEFAULT, SAMPLES_PER_PIXEL_DEFAULT, MAX_DEPTH_DEFAULT,
+                               VFOV_DEFAULT},
+      set_up_scene_(rtc::SetUpBlankScene)
 {
     // let the SDL2 stuff be initialized through OnInit
 }
 
 App::App(int w, int h, int samples_per_pixel, int max_depth)
-    : is_running_(true), opts_{w, h, samples_per_pixel, max_depth, VFOV_DEFAULT}
+    : is_running_(true), opts_{w, h, samples_per_pixel, max_depth, VFOV_DEFAULT}, set_up_scene_(rtc::SetUpBlankScene)
 {
     // let the SDL2 stuff be initialized through OnInit
 }
 
-int App::Spin()
+int App::Spin(std::function<void(rtc::Scene &)> set_up_scene)
 {
+    set_up_scene_ = set_up_scene;
     if (!OnInit())
     {
         return -1;
@@ -62,8 +66,11 @@ bool App::OnInit()
     }
 
     image_.Init(opts_.w, opts_.h, renderer_);
+
     scene_.samples_per_pixel_ = opts_.samples_per_pixel;
     scene_.max_depth_ = opts_.max_depth;
+
+    set_up_scene_(scene_);
 
     return true;
 }
