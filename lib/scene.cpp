@@ -2,6 +2,7 @@
 #include "base.hpp"
 #include "hittable.hpp"
 #include "material.hpp"
+#include "perf_timer.hpp"
 #include "sphere.hpp"
 #include <glm/gtc/random.hpp>
 
@@ -17,6 +18,8 @@ Scene::~Scene()
 
 void Scene::Render(Image &image)
 {
+    PerfTimer t("Render");
+
     int h = image.h(), w = image.w();
     if (h != h_ || w != w_)
     {
@@ -26,6 +29,7 @@ void Scene::Render(Image &image)
         camera_.aspect_ratio_ = static_cast<double>(w_) / static_cast<double>(h_);
         camera_.RefreshViewport();
     }
+
     for (int i = 0; i < h; i++)
     {
         for (int j = 0; j < w; j++)

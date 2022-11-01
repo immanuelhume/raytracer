@@ -5,7 +5,7 @@ pchOut=lib/pch.hpp.gch
 
 LIBS = -lSDL2
 
-CFLAGS = -std=c++17 -Ofast -H
+CFLAGS = -std=c++17 -Ofast -H 
 
 objects = main.o app.o $(patsubst %.cpp,%.o,$(wildcard ./lib/*.cpp))
 
@@ -19,8 +19,8 @@ $(pchOut) : $(pchSrc)
 	g++ -o $@ $< $(CFLAGS)
 
 %.o: %.cpp $(pchOut)
-	g++ -o $@ -c $< $(CFLAGS)	-include $(pchSrc)
-	
+	g++ -o $@ -c $< $(CFLAGS) -include $(pchSrc)
+
 .PHONEY:
 clean:
 	rm $(rebuildables)

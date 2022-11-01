@@ -23,7 +23,6 @@ class Scene
     // Performs arbitrary changes to the scene's camera, and refreshes its geometry.
     void UpdateCamera(std::function<void(Camera &)> f);
 
-  private:
   public:
     int samples_per_pixel_;
     int max_depth_;
