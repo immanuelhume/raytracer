@@ -42,7 +42,7 @@ void Scene::Render(Image &image)
     for (int n = 0; n < nt; n++)
     {
         int s = n * dy;                    // starting row
-        int e = n == nt - 1 ? h_ : s + dy; // ending row
+        int e = n == nt - 1 ? h_ : s + dy; // ending row (non inclusive)
         thread_pool_.Add([&image, this, s, e]() {
             for (int i = s; i < e; i++)
             {

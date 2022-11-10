@@ -3,16 +3,13 @@
 #include "lib/scene.hpp"
 
 // put some reasonable defaults
-App::App()
-    : is_running_(true), opts_{RES_W_DEFAULT, RES_H_DEFAULT, SAMPLES_PER_PIXEL_DEFAULT, MAX_DEPTH_DEFAULT,
-                               VFOV_DEFAULT},
-      set_up_scene_(rtc::SetUpBlankScene)
+App::App() : set_up_scene_(rtc::SetUpBlankScene)
 {
     // let the SDL2 stuff be initialized through OnInit
 }
 
-App::App(int w, int h, int samples_per_pixel, int max_depth)
-    : is_running_(true), opts_{w, h, samples_per_pixel, max_depth, VFOV_DEFAULT}, set_up_scene_(rtc::SetUpBlankScene)
+App::App(int w, int h, int samples_per_pixel, int max_depth, bool once)
+    : opts_{w, h, samples_per_pixel, max_depth, VFOV_DEFAULT, once}, set_up_scene_(rtc::SetUpBlankScene)
 {
     // let the SDL2 stuff be initialized through OnInit
 }
@@ -21,17 +18,13 @@ int App::Spin(std::function<void(rtc::Scene &)> set_up_scene)
 {
     set_up_scene_ = set_up_scene;
     if (!OnInit())
-    {
         return -1;
-    }
 
     SDL_Event event;
     while (is_running_)
     {
         while (SDL_PollEvent(&event))
-        {
             OnEvent(event);
-        }
 
         OnLoop();
         OnRender();
@@ -41,7 +34,34 @@ int App::Spin(std::function<void(rtc::Scene &)> set_up_scene)
     return 0;
 }
 
+int App::Once(std::function<void(rtc::Scene &)> set_up_scene, std::function<void(const rtc::Image &)> cb)
+{
+    set_up_scene_ = set_up_scene;
+    if (!OnInit())
+        return -1;
+
+    scene_.Render(image_);
+    cb(image_);
+
+    return 0;
+}
+
 bool App::OnInit()
+{
+    if (!opts_.once && !InitSDL())
+        return false;
+
+    image_.Init(opts_.w, opts_.h, renderer_);
+
+    scene_.samples_per_pixel_ = opts_.samples_per_pixel;
+    scene_.max_depth_ = opts_.max_depth;
+
+    set_up_scene_(scene_);
+
+    return true;
+}
+
+bool App::InitSDL()
 {
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
     {
@@ -65,22 +85,13 @@ bool App::OnInit()
         return false;
     }
 
-    image_.Init(opts_.w, opts_.h, renderer_);
-
-    scene_.samples_per_pixel_ = opts_.samples_per_pixel;
-    scene_.max_depth_ = opts_.max_depth;
-
-    set_up_scene_(scene_);
-
     return true;
 }
 
 void App::OnEvent(const SDL_Event &event)
 {
     if (event.type == SDL_QUIT)
-    {
         is_running_ = false;
-    }
 }
 
 void App::OnLoop()

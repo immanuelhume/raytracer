@@ -13,6 +13,8 @@ class Image
     Image();
     ~Image();
 
+    // initialize the image without an SDL renderer
+    void Init(int w, int h);
     void Init(int w, int h, SDL_Renderer *renderer);
 
     void SetPixel(int x, int y, double red, double blue, double green, double alpha);
@@ -20,6 +22,9 @@ class Image
 
     // send image data to SDL texture
     void Display();
+
+    // save the current buffer as a PNG file, not thread safe!
+    bool SavePNG(const std::string &filename) const;
 
     int w() const;
     int h() const;

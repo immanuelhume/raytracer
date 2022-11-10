@@ -3,7 +3,7 @@ linkTarget = rtc
 pchSrc=lib/pch.hpp
 pchOut=lib/pch.hpp.gch
 
-LIBS = -lSDL2
+LIBS = -lSDL2 -lSDL2_image
 
 CFLAGS = -std=c++17 -Ofast -Wall -H
 
