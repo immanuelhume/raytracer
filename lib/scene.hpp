@@ -6,6 +6,7 @@
 #include "hittable_list.hpp"
 #include "image.hpp"
 #include "ray.hpp"
+#include "thread_pool.hpp"
 
 namespace rtc
 {
@@ -35,6 +36,7 @@ class Scene
     // These are determined by the dimensions of target image. But we need to for the camera as well.
     int w_, h_;
     Camera camera_;
+    ThreadPool thread_pool_;
 };
 
 // Literally does nothing.

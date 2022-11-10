@@ -8,9 +8,14 @@
 class PerfTimer
 {
   public:
-    PerfTimer(std::string name) : name_(name), started_at_(std::chrono::high_resolution_clock::now())
+    PerfTimer(const std::string &name) : name_(name)
     {
     }
+
+    PerfTimer(std::string &&name) : name_(name)
+    {
+    }
+
     ~PerfTimer()
     {
         stopped_at_ = std::chrono::high_resolution_clock::now();
@@ -20,7 +25,7 @@ class PerfTimer
 
   private:
     std::string name_;
-    std::chrono::system_clock::time_point started_at_;
+    std::chrono::system_clock::time_point started_at_ = std::chrono::high_resolution_clock::now();
     std::chrono::system_clock::time_point stopped_at_;
 };
 

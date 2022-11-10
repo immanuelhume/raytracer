@@ -5,12 +5,15 @@
 			"binaryPath": "/home/junyi/src/github.com/immanuelhume/raytracer/out/rtc",
 			"binaryArgs": [
 				"-s",
-				"6",
+				"8",
 				"-r",
-				"852x480",
+				"400x200",
 				"-m",
-				"20"
+				"50"
 			]
 		},
-	]
+	],
+	"files.associations": {
+		"numbers": "cpp"
+	}
 }

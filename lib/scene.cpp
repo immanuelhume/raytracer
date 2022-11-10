@@ -8,7 +8,10 @@
 
 using namespace rtc;
 
-Scene::Scene() : samples_per_pixel_(SAMPLES_PER_PIXEL_DEFAULT), max_depth_(MAX_DEPTH_DEFAULT), ray_color_(RayColor_1)
+// TODO: the multi-threading scenario is not always faster, figure out why
+Scene::Scene()
+    : samples_per_pixel_(SAMPLES_PER_PIXEL_DEFAULT), max_depth_(MAX_DEPTH_DEFAULT), ray_color_(RayColor_1),
+      thread_pool_(std::max((u_int)1, std::thread::hardware_concurrency() / 4))
 {
 }
 
@@ -30,6 +33,40 @@ void Scene::Render(Image &image)
         camera_.RefreshViewport();
     }
 
+#define PAR_RENDER
+#ifdef PAR_RENDER
+
+    // give each thread gets a couple of contiguous rows to render
+    int nt = thread_pool_.NumThreads();
+    int dy = h_ / nt;
+    for (int n = 0; n < nt; n++)
+    {
+        int s = n * dy;                    // starting row
+        int e = n == nt - 1 ? h_ : s + dy; // ending row
+        thread_pool_.Add([&image, this, s, e]() {
+            for (int i = s; i < e; i++)
+            {
+                for (int j = 0; j < w_; j++)
+                {
+                    color p_color(0);
+                    for (int s = 0; s < samples_per_pixel_; s++)
+                    {
+                        // get our uv coordinates into [-1, 1] range
+                        double u = (j + rand_double()) * 2.0 / static_cast<float>(w_ - 1) - 1;
+                        double v = (i + rand_double()) * 2.0 / static_cast<float>(h_ - 1) - 1;
+                        p_color += ray_color_(camera_.GetRay(u, v), world_, max_depth_);
+                    }
+                    p_color /= static_cast<double>(samples_per_pixel_); // gamma correction
+                    image.SetPixel(i, j, sqrt(p_color[0]), sqrt(p_color[1]), sqrt(p_color[2]), sqrt(p_color[3]));
+                }
+            }
+        });
+    }
+
+    thread_pool_.Wait();
+
+#else
+
     for (int i = 0; i < h; i++)
     {
         for (int j = 0; j < w; j++)
@@ -38,14 +75,16 @@ void Scene::Render(Image &image)
             for (int s = 0; s < samples_per_pixel_; s++)
             {
                 // get our uv coordinates into [-1, 1] range
-                double u = (j + rand_double()) * 2.0 / static_cast<float>(w - 1) - 1;
-                double v = (i + rand_double()) * 2.0 / static_cast<float>(h - 1) - 1;
+                double u = (j + rand_double()) * 2.0 / static_cast<float>(w_ - 1) - 1;
+                double v = (i + rand_double()) * 2.0 / static_cast<float>(h_ - 1) - 1;
                 p_color += ray_color_(camera_.GetRay(u, v), world_, max_depth_);
             }
             p_color /= static_cast<double>(samples_per_pixel_); // gamma correction
             image.SetPixel(i, j, sqrt(p_color[0]), sqrt(p_color[1]), sqrt(p_color[2]), sqrt(p_color[3]));
         }
     }
+
+#endif
 }
 
 void Scene::UpdateCamera(std::function<void(Camera &)> f)
@@ -77,6 +116,7 @@ color rtc::RayColor_1(const Ray &ray, const HittableList &world, int depth)
         if (rec.mat_->scatter(ray, rec, attenuation, scattered))
             return attenuation * rtc::RayColor_1(scattered, world, depth - 1);
 
+        // The ray was completely absorbed. Return black.
         return color(0, 0, 0, 1);
     }
 

@@ -5,7 +5,7 @@ pchOut=lib/pch.hpp.gch
 
 LIBS = -lSDL2
 
-CFLAGS = -std=c++17 -Ofast -H 
+CFLAGS = -std=c++17 -Ofast -Wall -H
 
 objects = main.o app.o $(patsubst %.cpp,%.o,$(wildcard ./lib/*.cpp))
 
