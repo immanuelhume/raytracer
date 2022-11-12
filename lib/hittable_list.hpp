@@ -10,6 +10,7 @@ class HittableList : public Hittable
 {
   public:
     HittableList();
+    ~HittableList() override;
     virtual bool Hit(const Ray &ray, double tmin, double tmax, HitRecord &record) const override;
 
     void Clear(); // clears all objects in this list

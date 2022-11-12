@@ -25,8 +25,8 @@ class Scene
     void UpdateCamera(std::function<void(Camera &)> f);
 
   public:
-    int samples_per_pixel_;
-    int max_depth_;
+    int max_depth_ = MAX_DEPTH_DEFAULT;
+    int samples_per_pixel_ = SAMPLES_PER_PIXEL_DEFAULT;
 
     HittableList world_;
 

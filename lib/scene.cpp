@@ -9,9 +9,7 @@
 using namespace rtc;
 
 // TODO: the multi-threading scenario is not always faster, figure out why
-Scene::Scene()
-    : samples_per_pixel_(SAMPLES_PER_PIXEL_DEFAULT), max_depth_(MAX_DEPTH_DEFAULT), ray_color_(RayColor_1),
-      thread_pool_(std::max((u_int)1, std::thread::hardware_concurrency() / 4))
+Scene::Scene() : ray_color_(RayColor_1), thread_pool_(std::max((u_int)1, std::thread::hardware_concurrency() / 4))
 {
 }
 
@@ -56,7 +54,8 @@ void Scene::Render(Image &image)
                         double v = (i + rand_double()) * 2.0 / static_cast<float>(h_ - 1) - 1;
                         p_color += ray_color_(camera_.GetRay(u, v), world_, max_depth_);
                     }
-                    p_color /= static_cast<double>(samples_per_pixel_); // gamma correction
+                    p_color /= static_cast<double>(samples_per_pixel_);
+                    // what is this? gamma correction?
                     image.SetPixel(i, j, sqrt(p_color[0]), sqrt(p_color[1]), sqrt(p_color[2]), sqrt(p_color[3]));
                 }
             }

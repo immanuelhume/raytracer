@@ -6,6 +6,10 @@ HittableList::HittableList()
 {
 }
 
+HittableList::~HittableList()
+{
+}
+
 void HittableList::Clear()
 {
     objects_.clear();

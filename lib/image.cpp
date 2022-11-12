@@ -63,7 +63,7 @@ bool Image::SavePNG(const std::string &filename) const
     }
     if (IMG_SavePNG(surface, filename.c_str()) == -1)
     {
-        std::cerr << "failed to write to PNG" << std::endl;
+        std::cerr << "failed to write to PNG: " << SDL_GetError() << std::endl;
         SDL_FreeSurface(surface);
         return false;
     }

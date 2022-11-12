@@ -11,7 +11,7 @@ class Sphere : public Hittable
   public:
     Sphere();
     Sphere(point center, double radius, std::shared_ptr<Material> mat);
-    ~Sphere();
+    ~Sphere() override;
 
     virtual bool Hit(const Ray &ray, double tmin, double tmax, HitRecord &record) const override;
 

@@ -15,6 +15,8 @@ Ray Camera::GetRay(const double u, const double v) const
     // To simulate depth of field, we will offset the ray's origin by a little bit. This causes intersections outside
     // the focus plane to be slightly off and thus blurred. Intersections on the focus plane are not affected.
     glm::dvec2 rd = lens_radius_ * glm::diskRand(1.0);
+    // NOTE: the diskRand method is extremely slow
+    // glm::dvec2 rd{0, 0};
     vec3 offset = rd[0] * u_norm_ + rd[1] * v_norm_;
 
     point p = viewport_center_ + u * u_ + v * v_; // world coordinate of the uv coord given
