@@ -4,47 +4,22 @@
 
 using namespace rtc;
 
-Image::Image() : w_(0), h_(0), renderer_(nullptr), texture_(nullptr)
+Image::Image(int w, int h) : w_(w), h_(h)
 {
-}
-
-void Image::Init(const int w, const int h, SDL_Renderer *renderer)
-{
-    Init(w, h);
-    if (!renderer)
-        return;
-
-    // TODO: the image really shouldn't have anything to do with SDL2, move these stuff elsewhere
-    renderer_ = renderer;
-    texture_ = SDL_CreateTexture(renderer_,
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-                                 SDL_PIXELFORMAT_RGBA8888,
-#else
-                                 SDL_PIXELFORMAT_ABGR8888,
-#endif
-                                 SDL_TEXTUREACCESS_TARGET, w, h);
-}
-
-void Image::Init(const int w, const int h)
-{
-    w_ = w;
-    h_ = h;
     pixels_.resize(w * h);
 }
 
 Image::~Image()
 {
-    if (texture_)
-        SDL_DestroyTexture(texture_);
 }
 
 // See https://stackoverflow.com/questions/33304351/sdl2-fast-pixel-manipulation
-void Image::Display()
+void Image::Display(SDL_Texture *texture, SDL_Renderer *renderer)
 {
-    SDL_UpdateTexture(texture_, nullptr, pixels_.data(), w_ * sizeof(uint32_t));
+    SDL_UpdateTexture(texture, nullptr, pixels_.data(), w_ * sizeof(uint32_t));
 
-    SDL_RenderCopy(renderer_, texture_, nullptr, nullptr);
-    SDL_RenderPresent(renderer_);
+    SDL_RenderCopy(renderer, texture, nullptr, nullptr);
+    SDL_RenderPresent(renderer);
 }
 
 bool Image::SavePNG(const std::string &filename) const

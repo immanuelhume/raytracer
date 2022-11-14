@@ -6,22 +6,19 @@
 namespace rtc
 {
 
-// wrapper around an SDL texture
+// Just a wrapper around a buffer of pixels.
 class Image
 {
   public:
-    Image();
+    Image() = default;
+    Image(int w, int h);
     ~Image();
-
-    // initialize the image without an SDL renderer
-    void Init(int w, int h);
-    void Init(int w, int h, SDL_Renderer *renderer);
 
     void SetPixel(int x, int y, double red, double blue, double green, double alpha);
     void SetPixel(int x, int y, const color &color);
 
     // send image data to SDL texture
-    void Display();
+    void Display(SDL_Texture *, SDL_Renderer *);
 
     // save the current buffer as a PNG file, not thread safe!
     bool SavePNG(const std::string &filename) const;
@@ -31,11 +28,8 @@ class Image
 
   private:
     std::vector<uint32_t> pixels_;
-    int w_;
-    int h_;
-
-    SDL_Renderer *renderer_;
-    SDL_Texture *texture_;
+    int w_ = RES_W_DEFAULT;
+    int h_ = RES_H_DEFAULT;
 };
 
 } // namespace rtc

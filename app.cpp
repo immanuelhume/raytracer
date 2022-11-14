@@ -9,7 +9,7 @@ App::App() : set_up_scene_(rtc::SetUpBlankScene)
 }
 
 App::App(int w, int h, int samples_per_pixel, int max_depth, bool once)
-    : opts_{w, h, samples_per_pixel, max_depth, VFOV_DEFAULT, once}, set_up_scene_(rtc::SetUpBlankScene)
+    : opts_{w, h, samples_per_pixel, max_depth, VFOV_DEFAULT, once}, set_up_scene_(rtc::SetUpBlankScene), image_(w, h)
 {
     // let the SDL2 stuff be initialized through OnInit
 }
@@ -51,8 +51,6 @@ bool App::OnInit()
     if (!opts_.once && !InitSDL())
         return false;
 
-    image_.Init(opts_.w, opts_.h, renderer_);
-
     scene_.samples_per_pixel_ = opts_.samples_per_pixel;
     scene_.max_depth_ = opts_.max_depth;
 
@@ -69,7 +67,6 @@ bool App::InitSDL()
         return false;
     }
 
-    // TODO: make resizable
     window_ =
         SDL_CreateWindow("Yet Another Ray Tracer", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, opts_.w, opts_.h, 0);
 
@@ -82,6 +79,19 @@ bool App::InitSDL()
     if (!renderer_)
     {
         fprintf(stderr, "while creating SDL renderer: %s", SDL_GetError());
+        return false;
+    }
+
+    texture_ = SDL_CreateTexture(renderer_,
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+                                 SDL_PIXELFORMAT_RGBA8888,
+#else
+                                 SDL_PIXELFORMAT_ABGR8888,
+#endif
+                                 SDL_TEXTUREACCESS_TARGET, opts_.w, opts_.h);
+    if (!texture_)
+    {
+        fprintf(stderr, "while creating SDL texture: %s", SDL_GetError());
         return false;
     }
 
@@ -104,11 +114,12 @@ void App::OnRender()
     SDL_RenderClear(renderer_);
 
     scene_.Render(image_);
-    image_.Display();
+    image_.Display(texture_, renderer_);
 }
 
 void App::OnExit()
 {
+    SDL_DestroyTexture(texture_);
     SDL_DestroyRenderer(renderer_);
     SDL_DestroyWindow(window_);
 

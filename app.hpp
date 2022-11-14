@@ -34,6 +34,7 @@ class App
     void OnLoop();
     void OnEvent(const SDL_Event &event);
     void OnRender();
+    // deletes SDL2 resources and other stuff
     void OnExit();
 
   public:
@@ -45,6 +46,7 @@ class App
 
     SDL_Window *window_ = nullptr;
     SDL_Renderer *renderer_ = nullptr;
+    SDL_Texture *texture_ = nullptr;
 
     rtc::Image image_;
     rtc::Scene scene_;
