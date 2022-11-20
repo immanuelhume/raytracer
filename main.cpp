@@ -15,7 +15,7 @@ struct Arguments
     int w, h;
     int samples;
     int max_depth;
-    char *png;
+    char *pngfile;
 };
 
 std::regex resolution_rgx("(\\d+)x(\\d+)"); // matches stuff like 1280x720
@@ -39,7 +39,7 @@ static error_t ParseOpt(int key, char *arg, struct argp_state *state)
         args->h = stoi(matches[2]);
         break;
     case 'p':
-        args->png = arg;
+        args->pngfile = arg;
         break;
     case ARGP_KEY_ARG:
         break;
@@ -62,12 +62,16 @@ int main(int argc, char *argv[])
     args.max_depth = MAX_DEPTH_DEFAULT;
     args.w = RES_W_DEFAULT;
     args.h = RES_H_DEFAULT;
-    args.png = nullptr;
+    args.pngfile = nullptr;
 
     argp_parse(&argp, argc, argv, 0, 0, &args);
+    App app(args.w, args.h, args.samples, args.max_depth, args.pngfile);
 
-    App app(args.w, args.h, args.samples, args.max_depth, args.png);
-    if (args.png)
-        return app.Once(rtc::SetUpScene_1, [&args](const rtc::Image &i) { i.SavePNG(args.png); });
-    return app.Spin(rtc::SetUpScene_1);
+    // CHANGE THIS TO CHANGE THE SCENE
+    auto scene = rtc::SetUpScene_2;
+
+    if (args.pngfile)
+        return app.Once(scene, [&args](const rtc::Image &i) { i.SavePNG(args.pngfile); });
+
+    return app.Spin(scene);
 }

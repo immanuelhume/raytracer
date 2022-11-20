@@ -11,7 +11,7 @@ class Camera
 {
   public:
     // creates a camera at the origin, looking at negative z
-    Camera();
+    Camera(double t_open = 0, double t_close = 0);
 
     Ray GetRay(double u, double v) const;
 
@@ -31,6 +31,10 @@ class Camera
     double aspect_ratio_;
     double aperture_;
     double focus_dist_;
+    // point in time where the shutter opens
+    double t_open_;
+    // point in time where the shutter closes
+    double t_close_;
 
   private:
     double viewport_height_;

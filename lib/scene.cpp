@@ -125,12 +125,13 @@ color rtc::RayColor_1(const Ray &ray, const HittableList &world, int depth)
     return (1 - t) * color(1.0, 1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0, 1.0);
 }
 
-void rtc::AddRandomObjects_1(HittableList &list)
+void AddRandomObjectsImpl(HittableList &list, bool bounce)
 {
     // make a big ground
     auto ground_material = std::make_shared<Lambertian>(color(0.5, 0.5, 0.5, 1));
-    list.Add(std::make_shared<Sphere>(point(0, -1000, 0), 1000, ground_material));
+    list.Add(std::make_shared<Sphere>(1000, std::make_shared<Stationary>(point(0, -1000, 0)), ground_material));
 
+    // make many small spheres of radius 0.2
     for (int a = -11; a < 11; a++)
     {
         for (int b = -11; b < 11; b++)
@@ -141,13 +142,21 @@ void rtc::AddRandomObjects_1(HittableList &list)
             if ((center - point(4, 0.2, 0)).length() > 0.9)
             {
                 std::shared_ptr<Material> sphere_material;
+                std::shared_ptr<Positioner> position = std::make_shared<Stationary>(center);
 
                 if (choose_mat < 0.8)
                 {
                     // diffuse
                     auto albedo = rand_color() * rand_color();
                     sphere_material = std::make_shared<Lambertian>(albedo);
-                    list.Add(std::make_shared<Sphere>(center, 0.2, sphere_material));
+                    if (bounce)
+                    {
+                        // Creates a bounce with a period of 8 and amplitude 0.5. Randomly choose a time within [0, 8]
+                        // to "drop the ball".
+                        position = std::make_shared<Parabolic>(8, rand_double(0, 8), center, center + vec3(0, 0.5, 0));
+                        // TODO: no need to use rand_double for the start time here, just use a random bag shuffle thing
+                    }
+                    list.Add(std::make_shared<Sphere>(0.2, position, sphere_material));
                 }
                 else if (choose_mat < 0.95)
                 {
@@ -155,34 +164,49 @@ void rtc::AddRandomObjects_1(HittableList &list)
                     auto albedo = rand_color(0.5, 1);
                     auto fuzz = rand_double(0, 0.5);
                     sphere_material = std::make_shared<Metal>(albedo, fuzz);
-                    list.Add(std::make_shared<Sphere>(center, 0.2, sphere_material));
+                    list.Add(std::make_shared<Sphere>(0.2, position, sphere_material));
                 }
                 else
                 {
                     // glass
                     sphere_material = std::make_shared<Dielectric>(1.5);
-                    list.Add(std::make_shared<Sphere>(center, 0.2, sphere_material));
+                    list.Add(std::make_shared<Sphere>(0.2, position, sphere_material));
                 }
             }
         }
     }
 
     auto material1 = std::make_shared<Dielectric>(1.5);
-    list.Add(std::make_shared<Sphere>(point(0, 1, 0), 1.0, material1));
+    auto center1 = std::make_shared<Stationary>(point(0, 1, 0));
+    list.Add(std::make_shared<Sphere>(1.0, center1, material1));
 
     auto material2 = std::make_shared<Lambertian>(color(0.4, 0.2, 0.1, 1));
-    list.Add(std::make_shared<Sphere>(point(-4, 1, 0), 1.0, material2));
+    auto center2 = std::make_shared<Stationary>(point(-4, 1, 0));
+    list.Add(std::make_shared<Sphere>(1.0, center2, material2));
 
     auto material3 = std::make_shared<Metal>(color(0.7, 0.6, 0.5, 1), 0.0);
-    list.Add(std::make_shared<Sphere>(point(4, 1, 0), 1.0, material3));
+    auto center3 = std::make_shared<Stationary>(point(4, 1, 0));
+    list.Add(std::make_shared<Sphere>(1.0, center3, material3));
 }
 
-void rtc::SetUpCamera_1(Camera &c)
+void AddRandomObjects_1(HittableList &list)
+{
+    AddRandomObjectsImpl(list, false);
+}
+
+void AddRandomObjects_2(HittableList &list)
+{
+    AddRandomObjectsImpl(list, true);
+}
+
+void SetUpCamera_1(Camera &c)
 {
     c.look_from_ = point(13, 2, 3);
     c.look_at_ = point(0, 0, 0);
     c.vfov_ = glm::radians(20.0);
     c.focus_dist_ = 10.0;
+    c.t_open_ = 0;
+    c.t_close_ = 1;
     c.RefreshAll();
 }
 
@@ -190,5 +214,12 @@ void rtc::SetUpScene_1(Scene &scene)
 {
     scene.ray_color_ = RayColor_1;
     AddRandomObjects_1(scene.world_);
+    scene.UpdateCamera(SetUpCamera_1);
+}
+
+void rtc::SetUpScene_2(Scene &scene)
+{
+    scene.ray_color_ = RayColor_1;
+    AddRandomObjects_2(scene.world_);
     scene.UpdateCamera(SetUpCamera_1);
 }

@@ -49,10 +49,12 @@ void SetUpBlankScene(Scene &);
 // The default algorithm to compute a ray color, used in book one. A ray which does not hit any object
 // is rendered as part of a light blue sky.
 color RayColor_1(const Ray &ray, const HittableList &world, int depth);
-void AddRandomObjects_1(HittableList &list);
-void SetUpCamera_1(Camera &);
+
 // A convenience function which recreates the scene from the end of Shirley's first book.
 void SetUpScene_1(Scene &);
+
+// Identical to scene 1, but adds some bouncing motion.
+void SetUpScene_2(Scene &);
 
 } // namespace rtc
 

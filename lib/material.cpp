@@ -22,7 +22,7 @@ bool Lambertian::scatter(const Ray &ray, const HitRecord &rec, color &attenuatio
     if (almost_zero(scatter_dir)) // in case the scatter direction is zero, we ignore it
         scatter_dir = rec.normal();
 
-    scattered = Ray(rec.point_, scatter_dir);
+    scattered = Ray(rec.point_, scatter_dir, ray.time_);
     attenuation = albedo_;
     return true;
 }
@@ -42,7 +42,7 @@ Metal::~Metal()
 bool Metal::scatter(const Ray &ray, const HitRecord &rec, color &attenuation, Ray &scattered) const
 {
     vec3 reflected = glm::reflect(ray.dir_, rec.normal());
-    scattered = Ray(rec.point_, reflected + fuzz_ * glm::ballRand(1.0));
+    scattered = Ray(rec.point_, reflected + fuzz_ * glm::ballRand(1.0), ray.time_);
     attenuation = albedo_;
 
     // if this dot product is positive, then the reflected ray is indeed reflected (travelling away from surface), else
@@ -80,7 +80,7 @@ bool Dielectric::scatter(const Ray &ray, const HitRecord &rec, color &attenuatio
         direction = glm::refract(unit_dir, rec.normal(), refraction_ratio);
 
     attenuation = color(1, 1, 1, 1); // a glass surface absorbs nothing, so no attenuation
-    scattered = Ray(rec.point_, direction);
+    scattered = Ray(rec.point_, direction, ray.time_);
 
     return true;
 }

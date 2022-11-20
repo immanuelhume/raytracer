@@ -3,9 +3,10 @@
 
 using namespace rtc;
 
-Camera::Camera()
+Camera::Camera(const double t_open, const double t_close)
     : look_from_(point(0, 0, 0)), look_at_(point(0, 0, -1)), up_(vec3(0, 1, 0)), vfov_(glm::radians(90.0)),
-      aspect_ratio_(16.0 / 9.0), aperture_(0.1), focus_dist_((look_at_ - look_from_).length())
+      aspect_ratio_(16.0 / 9.0), aperture_(0.1), focus_dist_((look_at_ - look_from_).length()), t_open_(t_open),
+      t_close_(t_close)
 {
     RefreshAll();
 }
@@ -20,7 +21,11 @@ Ray Camera::GetRay(const double u, const double v) const
     vec3 offset = rd[0] * u_norm_ + rd[1] * v_norm_;
 
     point p = viewport_center_ + u * u_ + v * v_; // world coordinate of the uv coord given
-    return Ray(look_from_ + offset, p - look_from_ - offset);
+
+    // let the ray returned exist at a random time while this camera's shutter is open
+    double t = rand_double(t_open_, t_close_);
+    return Ray(look_from_ + offset, p - look_from_ - offset,
+               t); // TODO don't call rand_double if t_open_ same as t_close_
 }
 
 void Camera::RefreshAll()
