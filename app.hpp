@@ -1,8 +1,8 @@
 #ifndef APP_H
 #define APP_H
 
-#include "lib/image.hpp"
-#include "lib/scene.hpp"
+#include "image.hpp"
+#include "scene.hpp"
 
 struct ConfigOpts
 {

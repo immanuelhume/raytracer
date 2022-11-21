@@ -1,6 +1,6 @@
 #include "app.hpp"
-#include "lib/base.hpp"
-#include "lib/scene.hpp"
+#include "base.hpp"
+#include "scene.hpp"
 
 static struct argp_option options[] = {
     {"samples", 's', "NUM_SAMPLES", 0, "Number of samples per pixel"},

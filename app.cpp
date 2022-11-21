@@ -1,6 +1,6 @@
 #include "app.hpp"
-#include "lib/base.hpp"
-#include "lib/scene.hpp"
+#include "base.hpp"
+#include "scene.hpp"
 
 // put some reasonable defaults
 App::App() : set_up_scene_(rtc::SetUpBlankScene)
