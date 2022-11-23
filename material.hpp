@@ -4,6 +4,7 @@
 #include "base.hpp"
 #include "hittable.hpp"
 #include "ray.hpp"
+#include "texture.hpp"
 
 namespace rtc
 {
@@ -25,12 +26,13 @@ class Lambertian : public Material
   public:
     Lambertian();
     Lambertian(const color &albedo);
+    Lambertian(std::shared_ptr<Texture> texture);
     virtual ~Lambertian() override;
 
     virtual bool scatter(const Ray &ray, const HitRecord &rec, color &attenuation, Ray &scattered) const override;
 
   public:
-    color albedo_;
+    std::shared_ptr<Texture> albedo_;
 };
 
 class Metal : public Material

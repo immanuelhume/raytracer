@@ -7,7 +7,11 @@ Lambertian::Lambertian()
 {
 }
 
-Lambertian::Lambertian(const color &albedo) : albedo_(albedo)
+Lambertian::Lambertian(const color &albedo) : albedo_(std::make_shared<SolidColor>(albedo))
+{
+}
+
+Lambertian::Lambertian(std::shared_ptr<Texture> texture) : albedo_(texture)
 {
 }
 
@@ -23,7 +27,7 @@ bool Lambertian::scatter(const Ray &ray, const HitRecord &rec, color &attenuatio
         scatter_dir = rec.normal();
 
     scattered = Ray(rec.point_, scatter_dir, ray.time_);
-    attenuation = albedo_;
+    attenuation = albedo_->ValueAt(rec.u_, rec.v_, rec.point_);
     return true;
 }
 

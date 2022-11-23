@@ -5,8 +5,8 @@
 
 #define SAMPLES_PER_PIXEL_DEFAULT 4
 #define MAX_DEPTH_DEFAULT 50
-#define RES_W_DEFAULT 512
-#define RES_H_DEFAULT 256
+#define RES_W_DEFAULT 640
+#define RES_H_DEFAULT 360
 #define VFOV_DEFAULT 0.34906585 // 20 degrees
 
 using color = glm::dvec4;
@@ -24,12 +24,13 @@ enum Axis
 };
 
 static std::random_device rd;
-static std::mt19937 rng(rd());
+static thread_local std::mt19937 rng(rd());
 
 // a random floating point number in [0, 1)
 inline double rand_double()
 {
-    return rand() / (RAND_MAX + 1.0);
+    static std::uniform_real_distribution<double> uni(0, 1);
+    return uni(rng);
 }
 
 // a random floating point number within some range

@@ -19,7 +19,8 @@ point Stationary::Max()
     return p_;
 }
 
-Parabolic::Parabolic(double period, double start, point low, point high) : period_(period), low_(low), dir_(high - low)
+Parabolic::Parabolic(double period, double start, const point &low, const point &high)
+    : period_(period), low_(low), dir_(high - low)
 {
     a_ = -4 / (period * period);
     b_ = 4 / period;

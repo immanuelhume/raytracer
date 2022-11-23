@@ -12,6 +12,7 @@ class Sphere : public Hittable
     friend class SphereMover;
 
   public:
+    Sphere(double radius, const point &center, std::shared_ptr<Material> mat);
     Sphere(double radius, std::shared_ptr<Positioner> position, std::shared_ptr<Material> mat);
     ~Sphere() override;
 
@@ -22,6 +23,10 @@ class Sphere : public Hittable
     double radius_;
     std::shared_ptr<Positioner> position_;
     std::shared_ptr<Material> mat_;
+
+  private:
+    // Given some point on this sphere, translates its lat/long into [0, 1] range.
+    static void GetUV(const point &p, double &u, double &v);
 };
 
 } // namespace rtc

@@ -128,7 +128,9 @@ color rtc::RayColor_1(const Ray &ray, const HittableList &world, int depth)
 void AddRandomObjectsImpl(HittableList &list, bool bounce)
 {
     // make a big ground
-    auto ground_material = std::make_shared<Lambertian>(color(0.5, 0.5, 0.5, 1));
+    // color ground_color = color(0.5, 0.5, 0.5, 1);
+    auto ground_color = std::make_shared<Checkers>(color(0.2, 0.3, 0.1, 1), color(0.9, 0.9, 0.9, 1));
+    auto ground_material = std::make_shared<Lambertian>(ground_color);
     list.Add(std::make_shared<Sphere>(1000, std::make_shared<Stationary>(point(0, -1000, 0)), ground_material));
 
     // make many small spheres of radius 0.2
@@ -199,6 +201,7 @@ void AddRandomObjects_2(HittableList &list)
     AddRandomObjectsImpl(list, true);
 }
 
+// Camera used for the scene in end of book 1.
 void SetUpCamera_1(Camera &c)
 {
     c.look_from_ = point(13, 2, 3);
@@ -208,6 +211,15 @@ void SetUpCamera_1(Camera &c)
     c.t_open_ = 0;
     c.t_close_ = 1;
     c.RefreshAll();
+}
+
+void SetUpCamera_2(Camera &c)
+{
+    c.look_from_ = point(13, 2, 3);
+    c.look_at_ = point(0, 0, 0);
+    c.vfov_ = glm::radians(20.0);
+    c.aperture_ = 0.0;
+    c.focus_dist_ = 10.0;
 }
 
 void rtc::SetUpScene_1(Scene &scene)
@@ -222,4 +234,17 @@ void rtc::SetUpScene_2(Scene &scene)
     scene.ray_color_ = RayColor_1;
     AddRandomObjects_2(scene.world_);
     scene.UpdateCamera(SetUpCamera_1);
+}
+
+void rtc::SetUpScene_3(Scene &scene)
+{
+    scene.ray_color_ = RayColor_1;
+
+    auto checkers = std::make_shared<Checkers>(color(0.2, 0.3, 0.1, 1), color(0.9, 0.9, 0.9, 1));
+    auto mat = std::make_shared<Lambertian>(checkers);
+
+    scene.world_.Add(std::make_shared<Sphere>(10, point(0, -10, 0), std::make_shared<Lambertian>(checkers)));
+    scene.world_.Add(std::make_shared<Sphere>(10, point(0, 10, 0), std::make_shared<Lambertian>(checkers)));
+
+    scene.UpdateCamera(SetUpCamera_2);
 }

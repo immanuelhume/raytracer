@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     App app(args.w, args.h, args.samples, args.max_depth, args.pngfile);
 
     // CHANGE THIS TO CHANGE THE SCENE
-    auto scene = rtc::SetUpScene_2;
+    auto scene = rtc::SetUpScene_3;
 
     if (args.pngfile)
         return app.Once(scene, [&args](const rtc::Image &i) { i.SavePNG(args.pngfile); });

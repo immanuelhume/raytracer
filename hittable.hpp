@@ -14,6 +14,8 @@ class Material; // just to avoid circular reference
 class HitRecord
 {
   public:
+    HitRecord() = default;
+
     void set_face_normal(const Ray &ray, const vec3 &outward_normal)
     {
         front_face_ = glm::dot(ray.dir_, outward_normal) < 0.0;
@@ -34,6 +36,8 @@ class HitRecord
   public:
     point point_;
     double t_;
+    double u_; // u coordinate of texture map, in [0, 1]
+    double v_; // v coorindate of texture map, in [0, 1]
     std::shared_ptr<Material> mat_;
 
   private:

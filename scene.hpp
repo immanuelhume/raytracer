@@ -56,6 +56,9 @@ void SetUpScene_1(Scene &);
 // Identical to scene 1, but adds some bouncing motion.
 void SetUpScene_2(Scene &);
 
+// Thir scene of the book with the two checkered spheres.
+void SetUpScene_3(Scene &);
+
 } // namespace rtc
 
 #endif

@@ -8,9 +8,9 @@ class Positioner
 {
   public:
     virtual point At(double time) = 0;
-    // gives the max x, y, z coordinates possible
+    // gives the max x, y, z coordinates possible, used for bounding boxes
     virtual point Max() = 0;
-    // gives the min x, y, z coordinates possible
+    // gives the min x, y, z coordinates possible, used for bounding boxes
     virtual point Min() = 0;
 };
 
@@ -27,10 +27,11 @@ class Stationary : public Positioner
     point p_;
 };
 
+// Simulates bouncing.
 class Parabolic : public Positioner
 {
   public:
-    Parabolic(double period, double start = 0, point low = point(0, 0, 0), point high = point(0, 1, 0));
+    Parabolic(double period, double start, const point &low, const point &high);
     virtual point At(double time) override;
     virtual point Max() override;
     virtual point Min() override;
