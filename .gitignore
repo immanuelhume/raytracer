@@ -1,3 +1,4 @@
 *.o
 *.gch
 out/
+.vscode/settings.json

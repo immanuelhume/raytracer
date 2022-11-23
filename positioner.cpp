@@ -9,6 +9,16 @@ point Stationary::At(double time)
     return p_;
 }
 
+point Stationary::Min()
+{
+    return p_;
+}
+
+point Stationary::Max()
+{
+    return p_;
+}
+
 Parabolic::Parabolic(double period, double start, point low, point high) : period_(period), low_(low), dir_(high - low)
 {
     a_ = -4 / (period * period);
@@ -22,4 +32,14 @@ point Parabolic::At(double t)
     if (t < 0)
         t = -t;
     return low_ + (a_ * t * t + b_ * t) * dir_;
+}
+
+point Parabolic::Min()
+{
+    return low_;
+}
+
+point Parabolic::Max()
+{
+    return low_ + dir_;
 }

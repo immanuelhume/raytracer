@@ -1,6 +1,7 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
+#include "aabb.hpp"
 #include "base.hpp"
 #include "ray.hpp"
 
@@ -45,7 +46,11 @@ class Hittable
   public:
     Hittable() = default;
     virtual ~Hittable() = default;
+
     virtual bool Hit(const Ray &ray, double tmin, double tmax, HitRecord &record) const = 0;
+    // Constructs a bounding box for this object. Returns false if impossible (e.g. if object is a plane).
+    // TODO: make all implementors cache this
+    virtual bool BoundingBox(double t0, double t1, AABB &box) const = 0;
 };
 
 } // namespace rtc

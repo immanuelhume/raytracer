@@ -16,6 +16,7 @@ class Sphere : public Hittable
     ~Sphere() override;
 
     virtual bool Hit(const Ray &ray, double tmin, double tmax, HitRecord &record) const override;
+    virtual bool BoundingBox(double t0, double t1, AABB &box) const override;
 
   public:
     double radius_;

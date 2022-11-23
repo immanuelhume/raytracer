@@ -3,10 +3,10 @@
 
 #include "pch.hpp"
 
-#define SAMPLES_PER_PIXEL_DEFAULT 1
+#define SAMPLES_PER_PIXEL_DEFAULT 4
 #define MAX_DEPTH_DEFAULT 50
-#define RES_W_DEFAULT 1280
-#define RES_H_DEFAULT 720
+#define RES_W_DEFAULT 512
+#define RES_H_DEFAULT 256
 #define VFOV_DEFAULT 0.34906585 // 20 degrees
 
 using color = glm::dvec4;
@@ -15,6 +15,16 @@ using vec3 = glm::dvec3;
 
 const double epsilon = 1e-8;
 const double infinity = std::numeric_limits<double>::max();
+
+enum Axis
+{
+    x = 0,
+    y,
+    z,
+};
+
+static std::random_device rd;
+static std::mt19937 rng(rd());
 
 // a random floating point number in [0, 1)
 inline double rand_double()
@@ -36,6 +46,13 @@ inline color rand_color()
 inline color rand_color(double min, double max)
 {
     return color(rand_double(min, max), rand_double(min, max), rand_double(min, max), 1);
+}
+
+// See https://stackoverflow.com/a/19728404/13317332
+inline Axis random_axis()
+{
+    static std::uniform_int_distribution<int> uni(Axis::x, Axis::z);
+    return (Axis)uni(rng);
 }
 
 template <glm::length_t n, typename T> inline std::ostream &operator<<(std::ostream &stream, glm::vec<n, T> v)
