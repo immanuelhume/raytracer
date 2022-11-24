@@ -18,10 +18,19 @@ class Scene
   public:
     // Creates an empty scene with camera at origin.
     Scene();
-    ~Scene();
     void Render(Image &image);
 
-    // Performs arbitrary changes to the scene's camera, and refreshes its geometry.
+    // Performs arbitrary changes to the scene's camera, and refreshes its geometry. When used to initialize a camera,
+    // the most important fields are:
+    //
+    //   - look_from_
+    //   - look_at_
+    //   - vfov
+    //   - focus_dist_
+    //   - aspect_ratio_
+    //
+    // The vertical fov and focus distance determines the camera's viewport height. The aspect ratio is then used to
+    // determine the viewport's width.
     void UpdateCamera(std::function<void(Camera &)> f);
 
   public:
@@ -39,16 +48,12 @@ class Scene
     ThreadPool thread_pool_;
 };
 
-// Literally does nothing.
-void SetUpBlankScene(Scene &);
-
-/*****************************
- * Final scene from book one *
- *****************************/
-
 // The default algorithm to compute a ray color, used in book one. A ray which does not hit any object
 // is rendered as part of a light blue sky.
 color RayColor_1(const Ray &ray, const HittableList &world, int depth);
+
+// Literally does nothing.
+void SetUpBlankScene(Scene &);
 
 // A convenience function which recreates the scene from the end of Shirley's first book.
 void SetUpScene_1(Scene &);
@@ -56,8 +61,11 @@ void SetUpScene_1(Scene &);
 // Identical to scene 1, but adds some bouncing motion.
 void SetUpScene_2(Scene &);
 
-// Thir scene of the book with the two checkered spheres.
+// Third scene of the book with the two checkered spheres.
 void SetUpScene_3(Scene &);
+
+// Simple scene demonstrating perlin noise.
+void SetUpScene_4(Scene &);
 
 } // namespace rtc
 

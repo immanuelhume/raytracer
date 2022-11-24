@@ -5,8 +5,7 @@ using namespace rtc;
 
 Camera::Camera(const double t_open, const double t_close)
     : look_from_(point(0, 0, 0)), look_at_(point(0, 0, -1)), up_(vec3(0, 1, 0)), vfov_(glm::radians(90.0)),
-      aspect_ratio_(16.0 / 9.0), aperture_(0.1), focus_dist_((look_at_ - look_from_).length()), t_open_(t_open),
-      t_close_(t_close)
+      aspect_ratio_(16.0 / 9.0), focus_dist_((look_at_ - look_from_).length()), t_open_(t_open), t_close_(t_close)
 {
     RefreshAll();
 }

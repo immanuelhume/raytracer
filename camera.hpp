@@ -28,8 +28,8 @@ class Camera
 
     // verticle field of view, in radians
     double vfov_;
-    double aspect_ratio_;
-    double aperture_;
+    double aspect_ratio_; // TODO this needs to come from the config
+    double aperture_ = 0.1;
     double focus_dist_;
     // point in time where the shutter opens
     double t_open_;

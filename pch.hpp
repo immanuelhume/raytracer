@@ -6,6 +6,7 @@
 #include <glm/glm.hpp>
 
 #include <argp.h>
+#include <array>
 #include <cstdlib>
 #include <functional>
 #include <iostream>

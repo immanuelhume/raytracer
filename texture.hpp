@@ -2,6 +2,7 @@
 #define TEXTURE_H
 
 #include "base.hpp"
+#include "perlin.hpp"
 
 namespace rtc
 {
@@ -37,6 +38,19 @@ class Checkers : public Texture
   public:
     std::shared_ptr<Texture> a_;
     std::shared_ptr<Texture> b_;
+};
+
+class Noisy : public Texture
+{
+  public:
+    Noisy() = default;
+    // Construct a noisy texture with a scaling factor. A larger factor produces "tighter" patterns.
+    Noisy(double scale);
+    virtual color ValueAt(double u, double v, const point &p) const override;
+
+  public:
+    double scale_ = 1.0; // larger for "tighter" patterns
+    Perlin noise_;
 };
 
 } // namespace rtc

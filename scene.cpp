@@ -13,13 +13,9 @@ Scene::Scene() : ray_color_(RayColor_1), thread_pool_(std::max((u_int)1, std::th
 {
 }
 
-Scene::~Scene()
-{
-}
-
 void Scene::Render(Image &image)
 {
-    PerfTimer t("Render");
+    PerfTimer _("Render");
 
     int h = image.h(), w = image.w();
     if (h != h_ || w != w_)
@@ -31,7 +27,7 @@ void Scene::Render(Image &image)
         camera_.RefreshViewport();
     }
 
-#define PAR_RENDER
+// #define PAR_RENDER
 #ifdef PAR_RENDER
 
     // give each thread gets a couple of contiguous rows to render
@@ -216,7 +212,7 @@ void SetUpCamera_1(Camera &c)
 void SetUpCamera_2(Camera &c)
 {
     c.look_from_ = point(13, 2, 3);
-    c.look_at_ = point(0, 0, 0);
+    c.look_at_ = point(0, 0.5, 0);
     c.vfov_ = glm::radians(20.0);
     c.aperture_ = 0.0;
     c.focus_dist_ = 10.0;
@@ -224,27 +220,39 @@ void SetUpCamera_2(Camera &c)
 
 void rtc::SetUpScene_1(Scene &scene)
 {
-    scene.ray_color_ = RayColor_1;
     AddRandomObjects_1(scene.world_);
     scene.UpdateCamera(SetUpCamera_1);
 }
 
 void rtc::SetUpScene_2(Scene &scene)
 {
-    scene.ray_color_ = RayColor_1;
     AddRandomObjects_2(scene.world_);
     scene.UpdateCamera(SetUpCamera_1);
 }
 
 void rtc::SetUpScene_3(Scene &scene)
 {
-    scene.ray_color_ = RayColor_1;
-
+    // adds two large checkered spheres
     auto checkers = std::make_shared<Checkers>(color(0.2, 0.3, 0.1, 1), color(0.9, 0.9, 0.9, 1));
     auto mat = std::make_shared<Lambertian>(checkers);
-
     scene.world_.Add(std::make_shared<Sphere>(10, point(0, -10, 0), std::make_shared<Lambertian>(checkers)));
     scene.world_.Add(std::make_shared<Sphere>(10, point(0, 10, 0), std::make_shared<Lambertian>(checkers)));
 
     scene.UpdateCamera(SetUpCamera_2);
+}
+
+void rtc::SetUpScene_4(Scene &scene)
+{
+    // two noisy spheres
+    auto noisy = std::make_shared<Lambertian>(std::make_shared<Noisy>(4));
+    scene.world_.Add(std::make_shared<Sphere>(1000, point(0, -1000, 0), noisy));
+    scene.world_.Add(std::make_shared<Sphere>(2, point(3, 2, 0), noisy));
+
+    scene.UpdateCamera([](Camera &c) {
+        c.look_from_ = point(13, 2, 3);
+        c.look_at_ = point(0, 0.5, 0);
+
+        c.vfov_ = glm::radians(20.0);
+        c.focus_dist_ = 10.0;
+    });
 }

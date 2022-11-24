@@ -49,8 +49,7 @@ inline color rand_color(double min, double max)
     return color(rand_double(min, max), rand_double(min, max), rand_double(min, max), 1);
 }
 
-// See https://stackoverflow.com/a/19728404/13317332
-inline Axis random_axis()
+inline Axis rand_axis()
 {
     static std::uniform_int_distribution<int> uni(Axis::x, Axis::z);
     return (Axis)uni(rng);

@@ -24,3 +24,16 @@ color Checkers::ValueAt(double u, double v, const point &p) const
     else
         return b_->ValueAt(u, v, p);
 }
+
+Noisy::Noisy(double scale) : scale_(scale)
+{
+}
+color Noisy::ValueAt(double u, double v, const point &p) const
+{
+    // just noise
+    // return color(1, 1, 1, 1) * noise_.GetTurbulence(scale_ * p);
+
+    // marble like cycles along z-axis
+    // TODO these different methods should be enum/lambdas
+    return color(1, 1, 1, 1) * 0.5 * (1 + glm::sin(scale_ * p.z + 10 * noise_.GetTurbulence(p)));
+}
