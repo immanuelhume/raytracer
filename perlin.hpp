@@ -19,7 +19,7 @@ class Perlin
     static double TrilinearInterpolate(vec3 c[2][2][2], double u, double v, double w);
 
   private:
-    static const size_t n_ = 256;
+    static const size_t n_ = 256; // why 256?
 
     std::array<vec3, n_> rand_vecs_;
     std::array<int, n_> perm_x_;

@@ -13,6 +13,8 @@ class Camera
     // creates a camera at the origin, looking at negative z
     Camera(double t_open = 0, double t_close = 0);
 
+    // generates a ray from the camera's origin through some (u, v) on its viewport, where (0, 0) is the viewport's
+    // center
     Ray GetRay(double u, double v) const;
 
     // any changes to camera positions do not take effect until RefreshAll is called
@@ -28,7 +30,7 @@ class Camera
 
     // verticle field of view, in radians
     double vfov_;
-    double aspect_ratio_; // TODO this needs to come from the config
+    double aspect_ratio_;
     double aperture_ = 0.1;
     double focus_dist_;
     // point in time where the shutter opens

@@ -18,13 +18,13 @@ struct ConfigOpts
 class App
 {
   public:
-    App();
+    App() = default;
     App(int w, int h, int samples_per_pixel, int max_depth, bool once);
 
     // starts the app
     int Spin(std::function<void(rtc::Scene &)>);
 
-    // just renders one frame, then executes some callback on the image
+    // just renders one frame, then executes some callback on the completed image
     int Once(std::function<void(rtc::Scene &)>, std::function<void(const rtc::Image &)>);
 
   private:
@@ -38,7 +38,8 @@ class App
     void OnExit();
 
   public:
-    std::function<void(rtc::Scene &)> set_up_scene_;
+    // a lambda to set up the scene
+    std::function<void(rtc::Scene &)> set_up_scene_ = rtc::BlankScene;
 
   private:
     ConfigOpts opts_{RES_W_DEFAULT, RES_H_DEFAULT, SAMPLES_PER_PIXEL_DEFAULT, MAX_DEPTH_DEFAULT, VFOV_DEFAULT, false};

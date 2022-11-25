@@ -7,6 +7,8 @@
 class Positioner
 {
   public:
+    virtual ~Positioner() = default;
+
     virtual point At(double time) = 0;
     // gives the max x, y, z coordinates possible, used for bounding boxes
     virtual point Max() = 0;

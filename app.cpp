@@ -2,14 +2,8 @@
 #include "base.hpp"
 #include "scene.hpp"
 
-// put some reasonable defaults
-App::App() : set_up_scene_(rtc::SetUpBlankScene)
-{
-    // let the SDL2 stuff be initialized through OnInit
-}
-
 App::App(int w, int h, int samples_per_pixel, int max_depth, bool once)
-    : opts_{w, h, samples_per_pixel, max_depth, VFOV_DEFAULT, once}, set_up_scene_(rtc::SetUpBlankScene), image_(w, h)
+    : set_up_scene_(rtc::BlankScene), opts_{w, h, samples_per_pixel, max_depth, VFOV_DEFAULT, once}, image_(w, h)
 {
     // let the SDL2 stuff be initialized through OnInit
 }
@@ -17,14 +11,12 @@ App::App(int w, int h, int samples_per_pixel, int max_depth, bool once)
 int App::Spin(std::function<void(rtc::Scene &)> set_up_scene)
 {
     set_up_scene_ = set_up_scene;
-    if (!OnInit())
-        return -1;
+    if (!OnInit()) return -1;
 
     SDL_Event event;
     while (is_running_)
     {
-        while (SDL_PollEvent(&event))
-            OnEvent(event);
+        while (SDL_PollEvent(&event)) OnEvent(event);
 
         OnLoop();
         OnRender();
@@ -37,8 +29,7 @@ int App::Spin(std::function<void(rtc::Scene &)> set_up_scene)
 int App::Once(std::function<void(rtc::Scene &)> set_up_scene, std::function<void(const rtc::Image &)> cb)
 {
     set_up_scene_ = set_up_scene;
-    if (!OnInit())
-        return -1;
+    if (!OnInit()) return -1;
 
     scene_.Render(image_);
     cb(image_);
@@ -48,12 +39,13 @@ int App::Once(std::function<void(rtc::Scene &)> set_up_scene, std::function<void
 
 bool App::OnInit()
 {
-    if (!opts_.once && !InitSDL())
-        return false;
+    if (!opts_.once && !InitSDL()) return false;
 
     scene_.samples_per_pixel_ = opts_.samples_per_pixel;
     scene_.max_depth_ = opts_.max_depth;
 
+    // hacky way to set the aspect ratio
+    scene_.UpdateCamera([this](rtc::Camera &c) { c.aspect_ratio_ = (double)opts_.w / opts_.h; });
     set_up_scene_(scene_);
 
     return true;
@@ -100,13 +92,10 @@ bool App::InitSDL()
 
 void App::OnEvent(const SDL_Event &event)
 {
-    if (event.type == SDL_QUIT)
-        is_running_ = false;
+    if (event.type == SDL_QUIT) is_running_ = false;
 }
 
-void App::OnLoop()
-{
-}
+void App::OnLoop() {}
 
 void App::OnRender()
 {

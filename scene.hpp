@@ -11,12 +11,10 @@
 namespace rtc
 {
 
-using RayColor = std::function<color(const Ray &, const HittableList &, int depth)>;
-
 class Scene
 {
   public:
-    // Creates an empty scene with camera at origin.
+    // Creates an empty scene with camera at origin. The sky will be shaded to light blue.
     Scene();
     void Render(Image &image);
 
@@ -33,13 +31,15 @@ class Scene
     // determine the viewport's width.
     void UpdateCamera(std::function<void(Camera &)> f);
 
+    // meat of the ray tracer
+    color RayColor(const Ray &ray, int depth);
+
   public:
     int max_depth_ = MAX_DEPTH_DEFAULT;
     int samples_per_pixel_ = SAMPLES_PER_PIXEL_DEFAULT;
 
     HittableList world_;
-
-    RayColor ray_color_;
+    std::function<color(const Ray &r)> bg_; // function to retrieve background color given some ray from the camera
 
   private:
     // These are determined by the dimensions of target image. But we need to for the camera as well.
@@ -48,24 +48,29 @@ class Scene
     ThreadPool thread_pool_;
 };
 
-// The default algorithm to compute a ray color, used in book one. A ray which does not hit any object
-// is rendered as part of a light blue sky.
-color RayColor_1(const Ray &ray, const HittableList &world, int depth);
-
 // Literally does nothing.
-void SetUpBlankScene(Scene &);
-
+void BlankScene(Scene &);
 // A convenience function which recreates the scene from the end of Shirley's first book.
-void SetUpScene_1(Scene &);
-
+void RandomBalls(Scene &);
 // Identical to scene 1, but adds some bouncing motion.
-void SetUpScene_2(Scene &);
-
+void RandomBouncingBalls(Scene &);
 // Third scene of the book with the two checkered spheres.
-void SetUpScene_3(Scene &);
-
+void CheckeredDemo(Scene &);
 // Simple scene demonstrating perlin noise.
-void SetUpScene_4(Scene &);
+void NoiseDemo(Scene &);
+
+enum SceneDemo
+{
+    kRandomBalls = 0,
+    kRandomBouncingBalls,
+    kCheckered,
+    kNoise,
+
+    kLast,
+};
+
+extern const char *sceneDesc[SceneDemo::kLast];
+extern const std::function<void(Scene &s)> scenes[SceneDemo::kLast];
 
 } // namespace rtc
 

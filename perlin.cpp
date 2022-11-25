@@ -5,8 +5,8 @@ using namespace rtc;
 
 Perlin::Perlin()
 {
-    for (size_t i = 0; i < n_; i++)
-        rand_vecs_[i] = glm::ballRand(1.0);
+    // TODO switch to random vector table instead of sphericalRand
+    for (size_t i = 0; i < n_; i++) rand_vecs_[i] = glm::sphericalRand(1.0);
 
     FillAndShuffle(perm_x_);
     FillAndShuffle(perm_y_);
