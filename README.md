@@ -13,4 +13,4 @@ Another Peter Shirley Ray Tracer clone
       --usage                Give a short usage message
 ```
 
-![Final render from book1](notes/book1.png)
+![Final render from book1](notes/checkered-floor.png)
