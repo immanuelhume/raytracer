@@ -21,8 +21,9 @@ Ray Camera::GetRay(const double u, const double v) const
     point p = viewport_center_ + u * u_ + v * v_; // world coordinate of the uv coord given
 
     // let the ray returned exist at a random time while this camera's shutter is open
-    // TODO don't call rand_double if t_open_ same as t_close_
-    double t = rand_double(t_open_, t_close_);
+    double t = t_open_; // avoid calling the rand function if t_open and t_close are close enough
+    if (t_close_ - t_open_ > epsilon) t = rand_double(t_open_, t_close_);
+
     return Ray(look_from_ + offset, p - look_from_ - offset, t);
 }
 
