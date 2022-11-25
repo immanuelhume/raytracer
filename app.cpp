@@ -2,8 +2,9 @@
 #include "base.hpp"
 #include "scene.hpp"
 
-App::App(int w, int h, int samples_per_pixel, int max_depth, bool once)
-    : set_up_scene_(rtc::BlankScene), opts_{w, h, samples_per_pixel, max_depth, VFOV_DEFAULT, once}, image_(w, h)
+App::App(int w, int h, int samples_per_pixel, int max_depth, bool once, int num_threads)
+    : set_up_scene_(rtc::BlankScene), opts_{w, h, samples_per_pixel, max_depth, VFOV_DEFAULT, once, num_threads},
+      image_(w, h), scene_(num_threads)
 {
     // let the SDL2 stuff be initialized through OnInit
 }
@@ -44,8 +45,6 @@ bool App::OnInit()
     scene_.samples_per_pixel_ = opts_.samples_per_pixel;
     scene_.max_depth_ = opts_.max_depth;
 
-    // hacky way to set the aspect ratio
-    scene_.UpdateCamera([this](rtc::Camera &c) { c.aspect_ratio_ = (double)opts_.w / opts_.h; });
     set_up_scene_(scene_);
 
     return true;

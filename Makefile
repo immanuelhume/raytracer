@@ -4,7 +4,7 @@ pchSrc := pch.hpp
 pchOut := pch.hpp.gch
 
 CXX := g++
-CXXFLAGS := -std=c++17 -g -Wall -include $(pchSrc)
+CXXFLAGS := -std=c++17 -g -Wall -include $(pchSrc) -Ofast
 LDFLAGS := -lSDL2 -lSDL2_image
 
 objects = $(patsubst %.cpp,%.o,$(wildcard ./*.cpp))

@@ -2,3 +2,4 @@
 *.gch
 out/
 .vscode/settings.json
+perf.*

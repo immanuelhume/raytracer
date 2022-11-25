@@ -19,7 +19,8 @@ const std::function<void(Scene &s)> rtc::scenes[] = {
 };
 
 // TODO: the multi-threading scenario is not always faster, figure out why
-Scene::Scene() : bg_(SkyBG), thread_pool_(std::max((u_int)1, std::thread::hardware_concurrency() / 4)) {}
+Scene::Scene() : bg_(SkyBG) {}
+Scene::Scene(int num_threads) : bg_(SkyBG), thread_pool_(num_threads) {}
 
 void Scene::Render(Image &image)
 {
@@ -34,11 +35,7 @@ void Scene::Render(Image &image)
         camera_.aspect_ratio_ = static_cast<double>(w_) / static_cast<double>(h_);
         camera_.RefreshViewport();
     }
-
-// TODO parallel or not should be a cli param -- and we should avoid creating the thread pool if non-parallel
-#define PAR_RENDER
-#ifdef PAR_RENDER
-
+#if 1
     // give each thread gets a couple of contiguous rows to render
     int nt = thread_pool_.NumThreads();
     int dy = h_ / nt;
@@ -69,9 +66,7 @@ void Scene::Render(Image &image)
     }
 
     thread_pool_.Wait();
-
 #else
-
     for (int i = 0; i < h; i++)
     {
         for (int j = 0; j < w; j++)
@@ -82,14 +77,13 @@ void Scene::Render(Image &image)
                 // get our uv coordinates into [-1, 1] range
                 double u = (j + rand_double()) * 2.0 / (w_ - 1) - 1;
                 double v = (i + rand_double()) * 2.0 / (h_ - 1) - 1;
-                p_color += ray_color_(camera_.GetRay(u, v), world_, max_depth_);
+                p_color += RayColor(camera_.GetRay(u, v), max_depth_);
             }
             p_color /= static_cast<double>(samples_per_pixel_); // gamma correction
             image.SetPixel(i, j, glm::sqrt(p_color[0]), glm::sqrt(p_color[1]), glm::sqrt(p_color[2]),
                            glm::sqrt(p_color[3]));
         }
     }
-
 #endif
 }
 

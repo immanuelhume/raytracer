@@ -16,6 +16,7 @@ class Scene
   public:
     // Creates an empty scene with camera at origin. The sky will be shaded to light blue.
     Scene();
+    Scene(int num_threads);
     void Render(Image &image);
 
     // Performs arbitrary changes to the scene's camera, and refreshes its geometry. When used to initialize a camera,
@@ -25,10 +26,9 @@ class Scene
     //   - look_at_
     //   - vfov
     //   - focus_dist_
-    //   - aspect_ratio_
     //
-    // The vertical fov and focus distance determines the camera's viewport height. The aspect ratio is then used to
-    // determine the viewport's width.
+    // The vertical fov and focus distance determines the camera's viewport height. The aspect ratio is determined only
+    // when the scene is rendered to an image (in Scene::Render), and is determined by the image dimensions.
     void UpdateCamera(std::function<void(Camera &)> f);
 
     // meat of the ray tracer

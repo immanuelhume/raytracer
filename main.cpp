@@ -11,17 +11,19 @@ static struct argp_option options[] = {
     {"file", 'f', "FILENAME", 0, "Save to PNG instead of creating a window"},
     {"listscenes", 'l', 0, 0, "List available scenes"},
     {"scene", 'c', "SCENE_NUM", 0, "Select a scene to render"},
+    {"numthreads", 't', "NUM_THREADS", 0, "Number of threads to use, defaults to 1"},
     {0}, // end of array
 };
 
 struct Arguments
 {
-    int w, h;
-    int samples;
-    int max_depth;
-    char *filename;
-    rtc::SceneDemo scene;
-    bool list_only;
+    int w = RES_W_DEFAULT, h = RES_H_DEFAULT;
+    int samples = SAMPLES_PER_PIXEL_DEFAULT;
+    int max_depth = MAX_DEPTH_DEFAULT;
+    char *filename = nullptr;
+    rtc::SceneDemo scene = rtc::SceneDemo::kNoise;
+    bool list_only = false; // list available scenes
+    int num_threads = 1;
 };
 
 static std::regex resolution_rgx("(\\d+)x(\\d+)"); // matches stuff like 1280x720
@@ -54,6 +56,17 @@ static error_t ParseOpt(int key, char *arg, struct argp_state *state)
         }
         args->scene = (rtc::SceneDemo)x;
         break;
+    case 't':
+        x = atoi(arg);
+        if (x > (int)std::thread::hardware_concurrency())
+        {
+            std::stringstream err_msg;
+            err_msg << x << " threads wanted but only " << std::thread::hardware_concurrency() << " available";
+            argp_error(state, err_msg.str().c_str());
+            return 1;
+        }
+        args->num_threads = x;
+        break;
     case ARGP_KEY_ARG: break;
     case ARGP_KEY_END: break;
     default: return ARGP_ERR_UNKNOWN;
@@ -65,17 +78,7 @@ static struct argp argp = {options, ParseOpt, "", "Another Peter Shirley Ray Tra
 
 int main(int argc, char *argv[])
 {
-    struct Arguments args;
-
-    // defaults
-    args.samples = SAMPLES_PER_PIXEL_DEFAULT;
-    args.max_depth = MAX_DEPTH_DEFAULT;
-    args.w = RES_W_DEFAULT;
-    args.h = RES_H_DEFAULT;
-    args.filename = nullptr;
-    args.scene = rtc::SceneDemo::kNoise;
-    args.list_only = false;
-
+    struct Arguments args; // create arg struct with defaults
     argp_parse(&argp, argc, argv, 0, 0, &args);
 
     // print out the scenes, then exit
@@ -92,7 +95,7 @@ int main(int argc, char *argv[])
         return 0;
     }
 
-    App app(args.w, args.h, args.samples, args.max_depth, args.filename);
+    App app(args.w, args.h, args.samples, args.max_depth, args.filename, args.num_threads);
 
     // if the filename is not null, pass in a callback to save the render to PNG
     // TODO make sure the file exists/can create
