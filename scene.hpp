@@ -52,9 +52,9 @@ class Scene
 void BlankScene(Scene &);
 // A convenience function which recreates the scene from the end of Shirley's first book.
 void RandomBalls(Scene &);
-// Identical to scene 1, but adds some bouncing motion.
+// Identical to the first scene, but adds some bouncing motion.
 void RandomBouncingBalls(Scene &);
-// Third scene of the book with the two checkered spheres.
+// Third scene of the book to test checkered textures.
 void CheckeredDemo(Scene &);
 // Simple scene demonstrating perlin noise.
 void NoiseDemo(Scene &);
@@ -69,7 +69,9 @@ enum SceneDemo
     kLast,
 };
 
+// human friendly descriptions of each scene, indexed by SceneDemo enum
 extern const char *sceneDesc[SceneDemo::kLast];
+// the actual scene setup functions, indexed by SceneDemo enum
 extern const std::function<void(Scene &s)> scenes[SceneDemo::kLast];
 
 } // namespace rtc

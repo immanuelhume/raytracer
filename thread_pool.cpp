@@ -1,10 +1,7 @@
 #include "thread_pool.hpp"
 #include <iostream>
 
-ThreadPool::ThreadPool(u_int n) : num_threads_(n)
-{
-    InitThreads();
-}
+ThreadPool::ThreadPool(u_int n) : num_threads_(n) { InitThreads(); }
 
 ThreadPool::~ThreadPool()
 {
@@ -14,7 +11,7 @@ ThreadPool::~ThreadPool()
     latch.unlock();
 
     for (auto &t : threads_)
-        t.join();
+        if (t.joinable()) t.join();
 }
 
 void ThreadPool::Wait()
@@ -23,16 +20,12 @@ void ThreadPool::Wait()
     cv_done_.wait(lock, [this]() { return work_.empty() && (busy_ == 0); });
 }
 
-u_int ThreadPool::NumThreads()
-{
-    return num_threads_;
-}
+u_int ThreadPool::NumThreads() { return num_threads_; }
 
 void ThreadPool::InitThreads()
 {
     threads_.resize(num_threads_);
-    for (u_int i = 0; i < num_threads_; i++)
-        threads_.emplace_back(&ThreadPool::DoWork, this);
+    for (u_int i = 0; i < num_threads_; i++) threads_.emplace_back(&ThreadPool::DoWork, this);
 }
 
 void ThreadPool::DoWork()
@@ -46,8 +39,7 @@ void ThreadPool::DoWork()
         //   2. There is work in the queue.
         cv_work_.wait(latch, [this]() { return !work_.empty() || !is_active_; });
 
-        if (!is_active_)
-            break;
+        if (!is_active_) break;
 
         auto f = work_.front();
         work_.pop_front();

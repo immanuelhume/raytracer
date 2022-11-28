@@ -36,15 +36,18 @@ void Scene::Render(Image &image)
         camera_.RefreshViewport();
     }
 #if 1
-    // give each thread gets a couple of contiguous rows to render
+    // NOTE: I thought would make the code run faster by minimizing the number of divides in the actual ray tracing
+    // loop, but it seems like it makes no difference after all
+    double u_factor = 2.0 / (w_ - 1); // multiplication factor to transform i into u (still need to subtract one)
+    double v_factor = 2.0 / (h_ - 1); // ditto
+    double per_sample = 1.0 / samples_per_pixel_; // weight per sample
+
+    // thread k will render every kth row
     int nt = thread_pool_.NumThreads();
-    int dy = h_ / nt;
     for (int n = 0; n < nt; n++)
     {
-        int s = n * dy;                    // starting row
-        int e = n == nt - 1 ? h_ : s + dy; // ending row (non inclusive)
-        thread_pool_.Add([&image, this, s, e]() {
-            for (int i = s; i < e; i++)
+        thread_pool_.Add([&image, this, n, nt, u_factor, v_factor, per_sample]() {
+            for (int i = n; i < h_; i += nt)
             {
                 for (int j = 0; j < w_; j++)
                 {
@@ -52,11 +55,11 @@ void Scene::Render(Image &image)
                     for (int s = 0; s < samples_per_pixel_; s++)
                     {
                         // get our uv coordinates into [-1, 1] range
-                        double u = (j + rand_double()) * 2.0 / (w_ - 1) - 1;
-                        double v = (i + rand_double()) * 2.0 / (h_ - 1) - 1;
+                        double u = (j + rand_double()) * u_factor - 1;
+                        double v = (i + rand_double()) * v_factor - 1;
                         p_color += RayColor(camera_.GetRay(u, v), max_depth_);
                     }
-                    p_color /= static_cast<double>(samples_per_pixel_);
+                    p_color *= per_sample;
                     // what is this? gamma correction?
                     image.SetPixel(i, j, glm::sqrt(p_color[0]), glm::sqrt(p_color[1]), glm::sqrt(p_color[2]),
                                    glm::sqrt(p_color[3]));
@@ -114,6 +117,7 @@ color Scene::RayColor(const Ray &ray, int depth)
 
 void rtc::BlankScene(Scene &) {}
 
+// from the first book
 void AddRandomObjectsImpl(HittableList &list, bool bounce)
 {
     // make a big ground
@@ -223,14 +227,25 @@ void rtc::CheckeredDemo(Scene &scene)
 
 void rtc::NoiseDemo(Scene &scene)
 {
-    // two noisy spheres
-    auto noisy = std::make_shared<Lambertian>(std::make_shared<Noisy>(4));
-    scene.world_.Add(std::make_shared<Sphere>(1000, point(0, -1000, 0), noisy));
-    scene.world_.Add(std::make_shared<Sphere>(2, point(3, 2, 0), noisy));
+    auto turb = std::make_shared<Lambertian>(std::make_shared<Turbulence>(2));
+    auto marb = std::make_shared<Lambertian>(std::make_shared<Marble>(Axis::z, 8));
+    color nutmeg = color(0.398, 0.199, 0.0, 1.0);
+    auto wood = std::make_shared<Lambertian>(std::make_shared<Wood>(nutmeg, 1.5, 10));
+
+    scene.world_.Add(std::make_shared<Sphere>(1000, point(0, -1000, 0), wood));
+
+    scene.world_.Add(std::make_shared<Sphere>(1.5, point(1, 1.5, 0), turb));
+
+    scene.world_.Add(std::make_shared<Sphere>(0.5, point(7, 0.5, 4.2), marb));
+    scene.world_.Add(std::make_shared<Sphere>(0.5, point(6, 0.5, 3), marb));
+    scene.world_.Add(std::make_shared<Sphere>(0.5, point(4, 0.5, 4), marb));
+    scene.world_.Add(std::make_shared<Sphere>(0.5, point(3, 0.5, 2), marb));
+    scene.world_.Add(std::make_shared<Sphere>(0.5, point(1.5, 0.5, 3), marb));
+    scene.world_.Add(std::make_shared<Sphere>(0.5, point(0, 0.5, 2), marb));
 
     scene.UpdateCamera([](Camera &c) {
         c.look_from_ = point(13, 2, 3);
-        c.look_at_ = point(0, 0.5, 0);
+        c.look_at_ = point(0, 0.5, 1.5);
         c.vfov_ = glm::radians(20.0);
         c.focus_dist_ = 10.0;
     });

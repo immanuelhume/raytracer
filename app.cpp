@@ -18,7 +18,6 @@ int App::Spin(std::function<void(rtc::Scene &)> set_up_scene)
     while (is_running_)
     {
         while (SDL_PollEvent(&event)) OnEvent(event);
-
         OnLoop();
         OnRender();
     }

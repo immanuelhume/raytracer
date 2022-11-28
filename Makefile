@@ -3,11 +3,11 @@ linkTarget := rtc
 pchSrc := pch.hpp
 pchOut := pch.hpp.gch
 
-CXX := g++
+CXX := clang++
 CXXFLAGS := -std=c++17 -g -Wall -include $(pchSrc) -Ofast
 LDFLAGS := -lSDL2 -lSDL2_image
 
-objects = $(patsubst %.cpp,%.o,$(wildcard ./*.cpp))
+objects := $(patsubst %.cpp,%.o,$(wildcard ./*.cpp))
 
 $(outDir)$(linkTarget): $(objects) $(outDir)
 	$(CXX) -o $(outDir)$(linkTarget) $(objects) $(LDFLAGS) $(CXXFLAGS)

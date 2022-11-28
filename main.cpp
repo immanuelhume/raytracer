@@ -6,9 +6,9 @@
 // command line options
 static struct argp_option options[] = {
     {"samples", 's', "NUM_SAMPLES", 0, "Number of samples per pixel"},
-    {"maxdepth", 'm', "MAX_DEPTH", 0, "The maximum recursion depth when bouncing rays"},
+    {"maxdepth", 'd', "MAX_DEPTH", 0, "The maximum recursion depth when bouncing rays"},
     {"res", 'r', "RESOLUTION", 0, "Initial screen resolution, e.g. 1280x720"},
-    {"file", 'f', "FILENAME", 0, "Save to PNG instead of creating a window"},
+    {"file", 'f', "FILENAME", 0, "Save to a PNG file instead of viewing it in a window"},
     {"listscenes", 'l', 0, 0, "List available scenes"},
     {"scene", 'c', "SCENE_NUM", 0, "Select a scene to render"},
     {"numthreads", 't', "NUM_THREADS", 0, "Number of threads to use, defaults to 1"},
@@ -36,7 +36,7 @@ static error_t ParseOpt(int key, char *arg, struct argp_state *state)
     switch (key)
     {
     case 's': args->samples = atoi(arg); break;
-    case 'm': args->max_depth = atoi(arg); break;
+    case 'd': args->max_depth = atoi(arg); break;
     case 'r':
         if (!std::regex_search(arg, matches, resolution_rgx)) return -1;
         args->w = stoi(matches[1]);
@@ -51,7 +51,7 @@ static error_t ParseOpt(int key, char *arg, struct argp_state *state)
         {
             std::stringstream err_msg;
             err_msg << "Scene " << x << " is invalid";
-            argp_error(state, err_msg.str().c_str());
+            argp_error(state, "%s", err_msg.str().c_str());
             return 1;
         }
         args->scene = (rtc::SceneDemo)x;
@@ -62,7 +62,7 @@ static error_t ParseOpt(int key, char *arg, struct argp_state *state)
         {
             std::stringstream err_msg;
             err_msg << x << " threads wanted but only " << std::thread::hardware_concurrency() << " available";
-            argp_error(state, err_msg.str().c_str());
+            argp_error(state, "%s", err_msg.str().c_str());
             return 1;
         }
         args->num_threads = x;
