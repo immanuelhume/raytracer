@@ -5,12 +5,19 @@ By default, we use a quarter of the cores available on the host, and display the
 Usage: rtc [OPTION...]
 Another Peter Shirley Ray Tracer clone
 
-  -m, --maxdepth=MAX_DEPTH   The maximum recursion depth when bouncing rays
-  -p, --png=FILENAME         Save to PNG instead of creating a window
+  -c, --scene=SCENE_NUM      Select a scene to render
+  -d, --maxdepth=MAX_DEPTH   The maximum recursion depth when bouncing rays
+  -f, --file=FILENAME        Save to a PNG file instead of viewing it in a
+                             window
+  -l, --listscenes           List available scenes
   -r, --res=RESOLUTION       Initial screen resolution, e.g. 1280x720
   -s, --samples=NUM_SAMPLES  Number of samples per pixel
+  -t, --numthreads=NUM_THREADS   Number of threads to use, defaults to 1
   -?, --help                 Give this help list
       --usage                Give a short usage message
+
+Mandatory or optional arguments to long options are also mandatory or optional
+for any corresponding short options.
 ```
 
-![Final render from book1](notes/checkered-floor.png)
+![Final render from book1](notes / checkered - floor.png)

@@ -29,14 +29,12 @@ BVHNode::BVHNode(const std::vector<std::shared_ptr<Hittable>> &objects, size_t s
     size_t n = end - start;
     switch (n)
     {
-    case 0:
-        return;
+    case 0: return;
     case 1:
         left_ = right_ = xs[start]; // why is it in both left and right?
         break;
     case 2:
-        if (!comparator(xs[start], xs[start + 1]))
-            std::swap(xs[start], xs[start + 1]);
+        if (!comparator(xs[start], xs[start + 1])) std::swap(xs[start], xs[start + 1]);
         left_ = xs[start];
         right_ = xs[start + 1];
         break;
@@ -58,8 +56,7 @@ BVHNode::BVHNode(const std::vector<std::shared_ptr<Hittable>> &objects, size_t s
 
 bool BVHNode::Hit(const Ray &ray, double tmin, double tmax, HitRecord &record) const
 {
-    if (!box_.Hit(ray, tmin, tmax))
-        return false;
+    if (!box_.Hit(ray, tmin, tmax)) return false;
 
     // We'll hit the left or right or both. But we only want the hit with the smallest t.
     bool hit_left = left_->Hit(ray, tmin, tmax, record);

@@ -3,21 +3,13 @@
 
 using namespace rtc;
 
-Lambertian::Lambertian()
-{
-}
+Lambertian::Lambertian() {}
 
-Lambertian::Lambertian(const color &albedo) : albedo_(std::make_shared<SolidColor>(albedo))
-{
-}
+Lambertian::Lambertian(const color &albedo) : albedo_(std::make_shared<SolidColor>(albedo)) {}
 
-Lambertian::Lambertian(std::shared_ptr<Texture> texture) : albedo_(texture)
-{
-}
+Lambertian::Lambertian(std::shared_ptr<Texture> texture) : albedo_(texture) {}
 
-Lambertian::~Lambertian()
-{
-}
+Lambertian::~Lambertian() {}
 
 bool Lambertian::scatter(const Ray &ray, const HitRecord &rec, color &attenuation, Ray &scattered) const
 {
@@ -31,17 +23,11 @@ bool Lambertian::scatter(const Ray &ray, const HitRecord &rec, color &attenuatio
     return true;
 }
 
-Metal::Metal()
-{
-}
+Metal::Metal() {}
 
-Metal::Metal(const color &albedo, const double fuzz) : albedo_(albedo), fuzz_(fuzz < 1 ? fuzz : 1)
-{
-}
+Metal::Metal(const color &albedo, const double fuzz) : albedo_(albedo), fuzz_(fuzz < 1 ? fuzz : 1) {}
 
-Metal::~Metal()
-{
-}
+Metal::~Metal() {}
 
 bool Metal::scatter(const Ray &ray, const HitRecord &rec, color &attenuation, Ray &scattered) const
 {
@@ -54,17 +40,11 @@ bool Metal::scatter(const Ray &ray, const HitRecord &rec, color &attenuation, Ra
     return glm::dot(reflected, rec.normal()) > 0;
 }
 
-Dielectric::Dielectric()
-{
-}
+Dielectric::Dielectric() {}
 
-Dielectric::Dielectric(const double refractive_index) : ri_(refractive_index)
-{
-}
+Dielectric::Dielectric(const double refractive_index) : ri_(refractive_index) {}
 
-Dielectric::~Dielectric()
-{
-}
+Dielectric::~Dielectric() {}
 
 bool Dielectric::scatter(const Ray &ray, const HitRecord &rec, color &attenuation, Ray &scattered) const
 {
@@ -80,8 +60,7 @@ bool Dielectric::scatter(const Ray &ray, const HitRecord &rec, color &attenuatio
 
     if (cannot_refract || reflectance(cos_theta, refraction_ratio) > rand_double())
         direction = glm::reflect(unit_dir, rec.normal());
-    else
-        direction = glm::refract(unit_dir, rec.normal(), refraction_ratio);
+    else direction = glm::refract(unit_dir, rec.normal(), refraction_ratio);
 
     attenuation = color(1, 1, 1, 1); // a glass surface absorbs nothing, so no attenuation
     scattered = Ray(rec.point_, direction, ray.time_);

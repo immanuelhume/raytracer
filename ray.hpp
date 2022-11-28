@@ -13,10 +13,7 @@ class Ray
     Ray(const point &origin, const vec3 &dir, const double time = 0) : origin_(origin), dir_(dir), time_(time){};
     ~Ray(){};
 
-    point At(double t) const
-    {
-        return origin_ + t * dir_;
-    }
+    point At(double t) const { return origin_ + t * dir_; }
 
   public:
     point origin_;

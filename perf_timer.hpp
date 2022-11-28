@@ -8,13 +8,9 @@
 class PerfTimer
 {
   public:
-    PerfTimer(const std::string &name) : name_(name)
-    {
-    }
+    PerfTimer(const std::string &name) : name_(name) {}
 
-    PerfTimer(std::string &&name) : name_(name)
-    {
-    }
+    PerfTimer(std::string &&name) : name_(name) {}
 
     ~PerfTimer()
     {

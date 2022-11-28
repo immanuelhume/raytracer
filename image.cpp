@@ -4,14 +4,9 @@
 
 using namespace rtc;
 
-Image::Image(int w, int h) : w_(w), h_(h)
-{
-    pixels_.resize(w * h);
-}
+Image::Image(int w, int h) : w_(w), h_(h) { pixels_.resize(w * h); }
 
-Image::~Image()
-{
-}
+Image::~Image() {}
 
 // See https://stackoverflow.com/questions/33304351/sdl2-fast-pixel-manipulation
 void Image::Display(SDL_Texture *texture, SDL_Renderer *renderer)
@@ -79,12 +74,6 @@ void Image::SetPixel(const int i, const int j, const color &color)
     pixels_[i * w_ + j] = PixelColor(color[0], color[1], color[2], color[3]);
 }
 
-int Image::w() const
-{
-    return w_;
-}
+int Image::w() const { return w_; }
 
-int Image::h() const
-{
-    return h_;
-}
+int Image::h() const { return h_; }

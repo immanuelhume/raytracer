@@ -3,9 +3,7 @@
 
 using namespace rtc;
 
-AABB::AABB(point min, point max) : min_(min), max_(max)
-{
-}
+AABB::AABB(point min, point max) : min_(min), max_(max) {}
 
 bool AABB::Hit(const Ray &ray, double t_min, double t_max) const
 {
@@ -17,17 +15,12 @@ bool AABB::Hit(const Ray &ray, double t_min, double t_max) const
         double inv_d = 1.0 / ray.dir_[i];
         double t0 = (min_[i] - ray.origin_[i]) * inv_d;
         double t1 = (max_[i] - ray.origin_[i]) * inv_d;
-        if (inv_d < 0.0)
-            std::swap(t0, t1);
+        if (inv_d < 0.0) std::swap(t0, t1);
         t_min = t0 > t_min ? t0 : t_min;
         t_max = t1 < t_max ? t1 : t_max;
-        if (t_max <= t_min)
-            return false;
+        if (t_max <= t_min) return false;
     }
     return true;
 }
 
-AABB AABB::Surround(const AABB &a, const AABB &b)
-{
-    return AABB(glm::min(a.min_, b.min_), glm::max(a.max_, b.max_));
-}
+AABB AABB::Surround(const AABB &a, const AABB &b) { return AABB(glm::min(a.min_, b.min_), glm::max(a.max_, b.max_)); }

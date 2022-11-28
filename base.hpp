@@ -34,15 +34,9 @@ inline double rand_double()
 }
 
 // a random floating point number within some range
-inline double rand_double(const double min, const double max)
-{
-    return min + (max - min) * rand_double();
-}
+inline double rand_double(const double min, const double max) { return min + (max - min) * rand_double(); }
 
-inline color rand_color()
-{
-    return color(rand_double(0, 1), rand_double(0, 1), rand_double(0, 1), 1);
-}
+inline color rand_color() { return color(rand_double(0, 1), rand_double(0, 1), rand_double(0, 1), 1); }
 
 inline color rand_color(double min, double max)
 {
@@ -58,11 +52,9 @@ inline Axis rand_axis()
 template <glm::length_t n, typename T> inline std::ostream &operator<<(std::ostream &stream, glm::vec<n, T> v)
 {
     stream << v[0];
-    if (n == 1)
-        return stream;
+    if (n == 1) return stream;
 
-    for (int i = 1; i < n; i++)
-        stream << ", " << v[i];
+    for (int i = 1; i < n; i++) stream << ", " << v[i];
 
     return stream;
 }
@@ -71,8 +63,7 @@ template <glm::length_t n, typename T> inline bool almost_zero(const glm::vec<n,
 {
     for (int i = 0; i < n; i++)
     {
-        if (fabs(v[i]) > epsilon)
-            return false;
+        if (fabs(v[i]) > epsilon) return false;
     }
     return true;
 }

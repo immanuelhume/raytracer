@@ -22,16 +22,10 @@ class HitRecord
         normal_ = front_face_ ? outward_normal : -outward_normal;
     }
 
-    const vec3 &normal() const
-    {
-        return normal_;
-    };
+    const vec3 &normal() const { return normal_; };
 
     // returns true if the ray is incident to surface from the outside
-    bool front_face() const
-    {
-        return front_face_;
-    }
+    bool front_face() const { return front_face_; }
 
   public:
     point point_;
