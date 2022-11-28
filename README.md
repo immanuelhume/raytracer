@@ -1,5 +1,4 @@
-This is yet another follow-along of Peter Shirley's [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html) book.
-By default, we use a quarter of the cores available on the host, and display the image in an SDL window.
+This is yet another follow-along of Peter Shirley's [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html) series, with a few more bells and whistles.
 
 ```
 Usage: rtc [OPTION...]
@@ -20,4 +19,5 @@ Mandatory or optional arguments to long options are also mandatory or optional
 for any corresponding short options.
 ```
 
-![Final render from book1](notes / checkered - floor.png)
+![Final render from book1](notes/checkered-floor.png)
+![Perlin noise demo](notes/noise.png)
