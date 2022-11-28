@@ -9,7 +9,7 @@
 #define RES_H_DEFAULT 360
 #define VFOV_DEFAULT 0.34906585 // 20 degrees
 
-using color = glm::dvec4;
+using rgb = glm::dvec3;
 using point = glm::dvec3;
 using vec3 = glm::dvec3;
 
@@ -36,11 +36,11 @@ inline double rand_double()
 // a random floating point number within some range
 inline double rand_double(const double min, const double max) { return min + (max - min) * rand_double(); }
 
-inline color rand_color() { return color(rand_double(0, 1), rand_double(0, 1), rand_double(0, 1), 1); }
+inline rgb rand_color() { return rgb(rand_double(0, 1), rand_double(0, 1), rand_double(0, 1)); }
 
-inline color rand_color(double min, double max)
+inline rgb rand_color(double min, double max)
 {
-    return color(rand_double(min, max), rand_double(min, max), rand_double(min, max), 1);
+    return rgb(rand_double(min, max), rand_double(min, max), rand_double(min, max));
 }
 
 inline Axis rand_axis()

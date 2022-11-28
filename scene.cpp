@@ -8,7 +8,7 @@
 
 using namespace rtc;
 
-static color SkyBG(const Ray &ray);
+static rgb SkyBG(const Ray &ray);
 const char *rtc::sceneDesc[] = {"Randomly scattered balls", "Randomly scattered balls but some bounce",
                                 "Checkered texture demo", "Perlin noise demo"};
 const std::function<void(Scene &s)> rtc::scenes[] = {
@@ -51,7 +51,7 @@ void Scene::Render(Image &image)
             {
                 for (int j = 0; j < w_; j++)
                 {
-                    color p_color(0);
+                    rgb p_color(0);
                     for (int s = 0; s < samples_per_pixel_; s++)
                     {
                         // get our uv coordinates into [-1, 1] range
@@ -61,8 +61,7 @@ void Scene::Render(Image &image)
                     }
                     p_color *= per_sample;
                     // what is this? gamma correction?
-                    image.SetPixel(i, j, glm::sqrt(p_color[0]), glm::sqrt(p_color[1]), glm::sqrt(p_color[2]),
-                                   glm::sqrt(p_color[3]));
+                    image.SetPixel(i, j, glm::sqrt(p_color[0]), glm::sqrt(p_color[1]), glm::sqrt(p_color[2]), 1);
                 }
             }
         });
@@ -83,8 +82,7 @@ void Scene::Render(Image &image)
                 p_color += RayColor(camera_.GetRay(u, v), max_depth_);
             }
             p_color /= static_cast<double>(samples_per_pixel_); // gamma correction
-            image.SetPixel(i, j, glm::sqrt(p_color[0]), glm::sqrt(p_color[1]), glm::sqrt(p_color[2]),
-                           glm::sqrt(p_color[3]));
+            image.SetPixel(i, j, glm::sqrt(p_color[0]), glm::sqrt(p_color[1]), glm::sqrt(p_color[2]), 1);
         }
     }
 #endif
@@ -96,20 +94,20 @@ void Scene::UpdateCamera(std::function<void(Camera &)> f)
     camera_.RefreshAll();
 }
 
-color Scene::RayColor(const Ray &ray, int depth)
+rgb Scene::RayColor(const Ray &ray, int depth)
 {
-    if (depth <= 0) return color(0, 0, 0, 1);
+    if (depth <= 0) return rgb(0, 0, 0);
 
     HitRecord rec;
 
     if (world_.Hit(ray, 0.001, infinity, rec))
     {
         Ray scattered;
-        color attenuation;
+        rgb attenuation;
         if (rec.mat_->scatter(ray, rec, attenuation, scattered)) return attenuation * RayColor(scattered, depth - 1);
 
         // The ray was completely absorbed. Return black.
-        return color(0, 0, 0, 1);
+        return rgb(0, 0, 0);
     }
 
     return bg_(ray);
@@ -122,7 +120,7 @@ void AddRandomObjectsImpl(HittableList &list, bool bounce)
 {
     // make a big ground
     // color ground_color = color(0.5, 0.5, 0.5, 1);
-    auto ground_color = std::make_shared<Checkers>(color(0.2, 0.3, 0.1, 1), color(0.9, 0.9, 0.9, 1));
+    auto ground_color = std::make_shared<Checkers>(rgb(0.2, 0.3, 0.1), rgb(0.9, 0.9, 0.9));
     auto ground_material = std::make_shared<Lambertian>(ground_color);
     list.Add(std::make_shared<Sphere>(1000, std::make_shared<Stationary>(point(0, -1000, 0)), ground_material));
 
@@ -175,11 +173,11 @@ void AddRandomObjectsImpl(HittableList &list, bool bounce)
     auto center1 = std::make_shared<Stationary>(point(0, 1, 0));
     list.Add(std::make_shared<Sphere>(1.0, center1, material1));
 
-    auto material2 = std::make_shared<Lambertian>(color(0.4, 0.2, 0.1, 1));
+    auto material2 = std::make_shared<Lambertian>(rgb(0.4, 0.2, 0.1));
     auto center2 = std::make_shared<Stationary>(point(-4, 1, 0));
     list.Add(std::make_shared<Sphere>(1.0, center2, material2));
 
-    auto material3 = std::make_shared<Metal>(color(0.7, 0.6, 0.5, 1), 0.0);
+    auto material3 = std::make_shared<Metal>(rgb(0.7, 0.6, 0.5), 0.0);
     auto center3 = std::make_shared<Stationary>(point(4, 1, 0));
     list.Add(std::make_shared<Sphere>(1.0, center3, material3));
 }
@@ -211,7 +209,7 @@ void rtc::RandomBouncingBalls(Scene &scene)
 void rtc::CheckeredDemo(Scene &scene)
 {
     // adds two large checkered spheres
-    auto checkers = std::make_shared<Checkers>(color(0.2, 0.3, 0.1, 1), color(0.9, 0.9, 0.9, 1));
+    auto checkers = std::make_shared<Checkers>(rgb(0.2, 0.3, 0.1), rgb(0.9, 0.9, 0.9));
     auto mat = std::make_shared<Lambertian>(checkers);
     scene.world_.Add(std::make_shared<Sphere>(10, point(0, -10, 0), std::make_shared<Lambertian>(checkers)));
     scene.world_.Add(std::make_shared<Sphere>(10, point(0, 10, 0), std::make_shared<Lambertian>(checkers)));
@@ -229,7 +227,7 @@ void rtc::NoiseDemo(Scene &scene)
 {
     auto turb = std::make_shared<Lambertian>(std::make_shared<Turbulence>(2));
     auto marb = std::make_shared<Lambertian>(std::make_shared<Marble>(Axis::z, 8));
-    color nutmeg = color(0.398, 0.199, 0.0, 1.0);
+    rgb nutmeg = rgb(0.398, 0.199, 0.0);
     auto wood = std::make_shared<Lambertian>(std::make_shared<Wood>(nutmeg, 1.5, 10));
 
     scene.world_.Add(std::make_shared<Sphere>(1000, point(0, -1000, 0), wood));
@@ -251,9 +249,9 @@ void rtc::NoiseDemo(Scene &scene)
     });
 }
 
-static color SkyBG(const Ray &ray)
+static rgb SkyBG(const Ray &ray)
 {
     vec3 dir = glm::normalize(ray.dir_);
     double t = 0.5 * (dir[1] + 1.0);
-    return (1 - t) * color(1.0, 1.0, 1.0, 1.0) + t * color(0.5, 0.7, 1.0, 1.0);
+    return (1 - t) * rgb(1.0, 1.0, 1.0) + t * rgb(0.5, 0.7, 1.0);
 }

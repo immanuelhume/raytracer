@@ -32,14 +32,14 @@ class Scene
     void UpdateCamera(std::function<void(Camera &)> f);
 
     // meat of the ray tracer
-    color RayColor(const Ray &ray, int depth);
+    rgb RayColor(const Ray &ray, int depth);
 
   public:
     int max_depth_ = MAX_DEPTH_DEFAULT;
     int samples_per_pixel_ = SAMPLES_PER_PIXEL_DEFAULT;
 
     HittableList world_;
-    std::function<color(const Ray &r)> bg_; // function to retrieve background color given some ray from the camera
+    std::function<rgb(const Ray &r)> bg_; // function to retrieve background color given some ray from the camera
 
   private:
     // These are determined by the dimensions of target image. But we need to for the camera as well.

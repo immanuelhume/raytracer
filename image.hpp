@@ -15,7 +15,7 @@ class Image
     ~Image();
 
     void SetPixel(int x, int y, double red, double blue, double green, double alpha);
-    void SetPixel(int x, int y, const color &color);
+    void SetPixel(int x, int y, const rgb &color);
 
     // send image data to SDL texture
     void Display(SDL_Texture *, SDL_Renderer *);

@@ -69,9 +69,9 @@ void Image::SetPixel(const int i, const int j, const double red, const double gr
     pixels_[i * w_ + j] = PixelColor(red, green, blue, alpha);
 }
 
-void Image::SetPixel(const int i, const int j, const color &color)
+void Image::SetPixel(const int i, const int j, const rgb &color)
 {
-    pixels_[i * w_ + j] = PixelColor(color[0], color[1], color[2], color[3]);
+    pixels_[i * w_ + j] = PixelColor(color[0], color[1], color[2], 1.0);
 }
 
 int Image::w() const { return w_; }
