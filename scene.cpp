@@ -1,6 +1,10 @@
 #include "scene.hpp"
+#include "aarect.hpp"
 #include "base.hpp"
+#include "box.hpp"
+#include "bvh.hpp"
 #include "hittable.hpp"
+#include "hittable_list.hpp"
 #include "material.hpp"
 #include "perf_timer.hpp"
 #include "sphere.hpp"
@@ -9,12 +13,16 @@
 
 using namespace rtc;
 
-// shades a sky-like background
+// shades a sky-like background, also acts as a light source!
 static rgb SkyBG(const Ray &ray);
+// returns solid black background
+static rgb BlackBG(const Ray &ray);
+
 const char *rtc::sceneDesc[] = {"Randomly scattered balls", "Randomly scattered balls but some bounce",
-                                "Checkered texture demo", "Perlin noise demo", "Earth image map"};
+                                "Checkered texture demo",   "Perlin noise demo",
+                                "Earth image map",          "Cornell box"};
 const std::function<void(Scene &s)> rtc::scenes[] = {
-    RandomBalls, RandomBouncingBalls, CheckeredDemo, NoiseDemo, EarthDemo,
+    RandomBalls, RandomBouncingBalls, CheckeredDemo, NoiseDemo, EarthDemo, CornellBox,
 };
 
 // TODO: the multi-threading scenario is not always faster, figure out why
@@ -34,13 +42,12 @@ void Scene::Render(Image &image)
         camera_.aspect_ratio_ = static_cast<double>(w_) / static_cast<double>(h_);
         camera_.RefreshViewport();
     }
-#if 1
     // NOTE: I thought would make the code run faster by minimizing the number of divides in the actual ray tracing
     // loop, but it seems like it makes no difference after all
     double u_factor = 2.0 / (w_ - 1); // multiplication factor to transform i into u (still need to subtract one)
     double v_factor = 2.0 / (h_ - 1); // ditto
     double per_sample = 1.0 / samples_per_pixel_; // weight per sample
-
+#if 1
     // thread k will render every kth row
     int nt = thread_pool_.NumThreads();
     for (int n = 0; n < nt; n++)
@@ -72,15 +79,16 @@ void Scene::Render(Image &image)
     {
         for (int j = 0; j < w; j++)
         {
-            color p_color(0);
+            rgb p_color(0);
             for (int s = 0; s < samples_per_pixel_; s++)
             {
                 // get our uv coordinates into [-1, 1] range
-                double u = (j + rand_double()) * 2.0 / (w_ - 1) - 1;
-                double v = (i + rand_double()) * 2.0 / (h_ - 1) - 1;
+                double u = (j + rand_double()) * u_factor - 1;
+                double v = (i + rand_double()) * v_factor - 1;
                 p_color += RayColor(camera_.GetRay(u, v), max_depth_);
             }
-            p_color /= static_cast<double>(samples_per_pixel_); // gamma correction
+            p_color *= per_sample;
+            // what is this? gamma correction?
             image.SetPixel(i, j, glm::sqrt(p_color[0]), glm::sqrt(p_color[1]), glm::sqrt(p_color[2]), 1);
         }
     }
@@ -103,10 +111,12 @@ rgb Scene::RayColor(const Ray &ray, int depth)
     {
         Ray scattered;
         rgb attenuation;
-        if (rec.mat_->scatter(ray, rec, attenuation, scattered)) return attenuation * RayColor(scattered, depth - 1);
+        rgb emitted = rec.mat_->Emit(rec.u_, rec.v_, rec.point_);
+        if (rec.mat_->Scatter(ray, rec, attenuation, scattered))
+            return emitted + attenuation * RayColor(scattered, depth - 1);
 
-        // The ray was completely absorbed. Return black.
-        return rgb(0, 0, 0);
+        // The ray was completely absorbed. Return just the emitted light.
+        return emitted;
     }
 
     return bg_(ray);
@@ -181,28 +191,36 @@ void AddRandomObjectsImpl(HittableList &list, bool bounce)
     list.Add(std::make_shared<Sphere>(1.0, center3, material3));
 }
 
-// Camera used for the scene in end of book 1.
-static void SetUpCamera_1(Camera &c)
-{
-    c.look_from_ = point(13, 2, 3);
-    c.look_at_ = point(0, 0, 0);
-    c.vfov_ = glm::radians(20.0);
-    c.focus_dist_ = 10.0;
-    c.t_open_ = 0;
-    c.t_close_ = 1;
-    c.RefreshAll();
-}
-
 void rtc::RandomBalls(Scene &scene)
 {
-    AddRandomObjectsImpl(scene.world_, false);
-    scene.UpdateCamera(SetUpCamera_1);
+    HittableList world;
+    AddRandomObjectsImpl(world, false);
+    scene.world_.Add(std::make_shared<BVHNode>(world, 0, 1.0));
+
+    scene.UpdateCamera([](Camera &c) {
+        c.look_from_ = point(13, 2, 3);
+        c.look_at_ = point(0, 0, 0);
+        c.vfov_ = glm::radians(20.0);
+        c.focus_dist_ = 10.0;
+        c.t_open_ = 0;
+        c.t_close_ = 1;
+    });
 }
 
 void rtc::RandomBouncingBalls(Scene &scene)
 {
-    AddRandomObjectsImpl(scene.world_, true);
-    scene.UpdateCamera(SetUpCamera_1);
+    HittableList world;
+    AddRandomObjectsImpl(world, true);
+    scene.world_.Add(std::make_shared<BVHNode>(world, 0, 1.0));
+
+    scene.UpdateCamera([](Camera &c) {
+        c.look_from_ = point(13, 2, 3);
+        c.look_at_ = point(0, 0, 0);
+        c.vfov_ = glm::radians(20.0);
+        c.focus_dist_ = 10.0;
+        c.t_open_ = 0;
+        c.t_close_ = 1;
+    });
 }
 
 void rtc::CheckeredDemo(Scene &scene)
@@ -264,9 +282,51 @@ void rtc::EarthDemo(Scene &s)
     });
 }
 
+void rtc::CornellBox(Scene &s)
+{
+    auto red = std::make_shared<Lambertian>(rgb(.65, .05, .05));
+    auto white = std::make_shared<Lambertian>(rgb(.73, .73, .73));
+    auto green = std::make_shared<Lambertian>(rgb(.12, .45, .15));
+    auto light = std::make_shared<DiffuseLight>(rgb(15, 15, 15));
+
+    auto left_wall = std::make_shared<YZRect>(0, 555, 0, 555, 555, green);
+    auto right_wall = std::make_shared<YZRect>(0, 555, 0, 555, 0, red);
+    auto back_wall = std::make_shared<XYRect>(0, 555, 0, 555, 555, white);
+    auto floor = std::make_shared<XZRect>(0, 555, 0, 555, 0, white);
+    auto ceil = std::make_shared<XZRect>(0, 555, 0, 555, 555, white);
+    auto lamp = std::make_shared<XZRect>(213, 343, 227, 332, 554, light);
+
+    auto box1 = std::make_shared<Box>(point(130, 0, 65), point(295, 165, 230), white);
+    auto box2 = std::make_shared<Box>(point(265, 0, 295), point(430, 330, 460), white);
+
+    s.world_.Add(left_wall);
+    s.world_.Add(right_wall);
+    s.world_.Add(back_wall);
+    s.world_.Add(floor);
+    s.world_.Add(ceil);
+    s.world_.Add(lamp);
+    s.world_.Add(box1);
+    s.world_.Add(box2);
+
+    s.bg_ = BlackBG;
+
+    s.UpdateCamera([](Camera &c) {
+        c.look_from_ = point(278, 278, -800);
+        c.look_at_ = point(278, 278, 0);
+        c.vfov_ = glm::radians(40.0);
+        c.focus_dist_ = 10.0;
+    });
+}
+
 static rgb SkyBG(const Ray &ray)
 {
     vec3 dir = glm::normalize(ray.dir_);
     double t = 0.5 * (dir[1] + 1.0);
     return (1 - t) * rgb(1.0, 1.0, 1.0) + t * rgb(0.5, 0.7, 1.0);
+}
+
+static rgb BlackBG(const Ray &ray)
+{
+    static rgb black = rgb(0, 0, 0);
+    return black;
 }

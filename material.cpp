@@ -7,7 +7,7 @@ using namespace rtc;
 
 Lambertian::Lambertian(const rgb &albedo) : albedo_(std::make_shared<SolidColor>(albedo)) {}
 Lambertian::Lambertian(std::shared_ptr<Texture> texture) : albedo_(texture) {}
-bool Lambertian::scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation, Ray &scattered) const
+bool Lambertian::Scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation, Ray &scattered) const
 {
     vec3 scatter_dir = rec.normal() + glm::ballRand(1.0);
 
@@ -22,7 +22,7 @@ bool Lambertian::scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation,
 /* ---------------------------------- METAL --------------------------------- */
 
 Metal::Metal(const rgb &albedo, const double fuzz) : albedo_(albedo), fuzz_(fuzz < 1 ? fuzz : 1) {}
-bool Metal::scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation, Ray &scattered) const
+bool Metal::Scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation, Ray &scattered) const
 {
     vec3 reflected = glm::reflect(ray.dir_, rec.normal());
     scattered = Ray(rec.point_, reflected + fuzz_ * glm::ballRand(1.0), ray.time_);
@@ -36,7 +36,7 @@ bool Metal::scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation, Ray 
 /* ------------------------ DIELECTRIC (see-through) ------------------------ */
 
 Dielectric::Dielectric(const double refractive_index) : ri_(refractive_index) {}
-bool Dielectric::scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation, Ray &scattered) const
+bool Dielectric::Scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation, Ray &scattered) const
 {
     double refraction_ratio = rec.front_face() ? (1.0 / ri_) : ri_; // assume the other material is air (1.0)
     vec3 unit_dir = glm::normalize(ray.dir_);
@@ -48,7 +48,7 @@ bool Dielectric::scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation,
 
     vec3 direction;
 
-    if (cannot_refract || reflectance(cos_theta, refraction_ratio) > rand_double())
+    if (cannot_refract || Reflectance(cos_theta, refraction_ratio) > rand_double())
         direction = glm::reflect(unit_dir, rec.normal());
     else direction = glm::refract(unit_dir, rec.normal(), refraction_ratio);
 
@@ -57,9 +57,19 @@ bool Dielectric::scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation,
 
     return true;
 }
-double Dielectric::reflectance(double cosine, double ref_idx)
+double Dielectric::Reflectance(double cosine, double ref_idx)
 {
     double r0 = (1 - ref_idx) / (1 + ref_idx);
     r0 *= r0;
     return r0 + (1 - r0) * pow(1 - cosine, 5);
 }
+
+/* -------------------------- DIFFUSE LIGHT SOURCE -------------------------- */
+
+DiffuseLight::DiffuseLight(std::shared_ptr<Texture> texture) : texture_(texture) {}
+DiffuseLight::DiffuseLight(const rgb &color) : texture_(std::make_shared<SolidColor>(color)) {}
+bool DiffuseLight::Scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation, Ray &scattered) const
+{
+    return false;
+}
+rgb DiffuseLight::Emit(double u, double v, const point &p) const { return texture_->ValueAt(u, v, p); }

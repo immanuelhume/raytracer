@@ -66,6 +66,8 @@ void NoiseDemo(Scene &);
 // Mapping an earth texture onto a sphere.
 void EarthDemo(Scene &);
 
+void CornellBox(Scene &);
+
 enum SceneDemo
 {
     kRandomBalls = 0,
@@ -73,6 +75,7 @@ enum SceneDemo
     kCheckered,
     kNoise,
     kEarth,
+    kCornellBox,
 
     kLast, // helps keep track of how many scenes we have
 };

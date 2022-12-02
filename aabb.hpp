@@ -11,7 +11,7 @@ class AABB
 {
   public:
     AABB() = default;
-    AABB(point min, point max);
+    AABB(const point &min, const point &max);
 
     bool Hit(const Ray &ray, double t_min, double t_max) const;
     static AABB Surround(const AABB &a, const AABB &b);

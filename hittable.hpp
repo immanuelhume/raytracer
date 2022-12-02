@@ -30,8 +30,8 @@ class HitRecord
   public:
     point point_;
     double t_;
-    double u_; // u coordinate of texture map, in [0, 1]
-    double v_; // v coorindate of texture map, in [0, 1]
+    double u_; // u coordinate of surface, in [0, 1]
+    double v_; // v coorindate of surface, in [0, 1]
     std::shared_ptr<Material> mat_;
 
   private:

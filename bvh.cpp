@@ -21,7 +21,7 @@ BVHNode::BVHNode(const HittableList &list, double t0, double t1)
 
 BVHNode::BVHNode(const std::vector<std::shared_ptr<Hittable>> &objects, size_t start, size_t end, double t0, double t1)
 {
-    auto xs = objects; // make a copy!
+    auto xs = objects; // make a (shallow) copy!
     auto comparator = BoxCompare(rand_axis());
 
     // Check how many items are in this subtree. If its one or two, then we have a leaf node. Otherwise we'll need to
