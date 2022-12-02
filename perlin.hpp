@@ -10,7 +10,10 @@ class Perlin
 {
   public:
     Perlin();
+    // computes perlin noise for a point, return value is in [-1, 1]
     double Noise(const point &p) const;
+    // computes perlin noise for a point, return value is in [0, 1]
+    double NoiseX(const point &p) const;
     double Turbulence(point p, int depth = 7) const;
 
   private:

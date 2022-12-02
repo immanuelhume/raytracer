@@ -3,14 +3,10 @@
 
 using namespace rtc;
 
-Lambertian::Lambertian() {}
+/* ---------------------- LAMBERTIAN (regular diffuse) ---------------------- */
 
 Lambertian::Lambertian(const rgb &albedo) : albedo_(std::make_shared<SolidColor>(albedo)) {}
-
 Lambertian::Lambertian(std::shared_ptr<Texture> texture) : albedo_(texture) {}
-
-Lambertian::~Lambertian() {}
-
 bool Lambertian::scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation, Ray &scattered) const
 {
     vec3 scatter_dir = rec.normal() + glm::ballRand(1.0);
@@ -23,12 +19,9 @@ bool Lambertian::scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation,
     return true;
 }
 
-Metal::Metal() {}
+/* ---------------------------------- METAL --------------------------------- */
 
 Metal::Metal(const rgb &albedo, const double fuzz) : albedo_(albedo), fuzz_(fuzz < 1 ? fuzz : 1) {}
-
-Metal::~Metal() {}
-
 bool Metal::scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation, Ray &scattered) const
 {
     vec3 reflected = glm::reflect(ray.dir_, rec.normal());
@@ -40,12 +33,9 @@ bool Metal::scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation, Ray 
     return glm::dot(reflected, rec.normal()) > 0;
 }
 
-Dielectric::Dielectric() {}
+/* ------------------------ DIELECTRIC (see-through) ------------------------ */
 
 Dielectric::Dielectric(const double refractive_index) : ri_(refractive_index) {}
-
-Dielectric::~Dielectric() {}
-
 bool Dielectric::scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation, Ray &scattered) const
 {
     double refraction_ratio = rec.front_face() ? (1.0 / ri_) : ri_; // assume the other material is air (1.0)
@@ -67,8 +57,6 @@ bool Dielectric::scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation,
 
     return true;
 }
-
-// schlick approximation
 double Dielectric::reflectance(double cosine, double ref_idx)
 {
     double r0 = (1 - ref_idx) / (1 + ref_idx);

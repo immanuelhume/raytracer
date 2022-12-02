@@ -42,7 +42,7 @@ class Scene
     std::function<rgb(const Ray &r)> bg_; // function to retrieve background color given some ray from the camera
 
   private:
-    // These are determined by the dimensions of target image. But we need to for the camera as well.
+    // Determined by the dimensions of target image. But we need to for the camera as well.
     int w_, h_;
     Camera camera_;
     ThreadPool thread_pool_;
@@ -50,14 +50,21 @@ class Scene
 
 // Literally does nothing.
 void BlankScene(Scene &);
+
 // A convenience function which recreates the scene from the end of Shirley's first book.
 void RandomBalls(Scene &);
+
 // Identical to the first scene, but adds some bouncing motion.
 void RandomBouncingBalls(Scene &);
+
 // Third scene of the book to test checkered textures.
 void CheckeredDemo(Scene &);
+
 // Simple scene demonstrating perlin noise.
 void NoiseDemo(Scene &);
+
+// Mapping an earth texture onto a sphere.
+void EarthDemo(Scene &);
 
 enum SceneDemo
 {
@@ -65,12 +72,14 @@ enum SceneDemo
     kRandomBouncingBalls,
     kCheckered,
     kNoise,
+    kEarth,
 
-    kLast,
+    kLast, // helps keep track of how many scenes we have
 };
 
 // human friendly descriptions of each scene, indexed by SceneDemo enum
 extern const char *sceneDesc[SceneDemo::kLast];
+
 // the actual scene setup functions, indexed by SceneDemo enum
 extern const std::function<void(Scene &s)> scenes[SceneDemo::kLast];
 

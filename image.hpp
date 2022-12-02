@@ -32,6 +32,9 @@ class Image
     int h_ = RES_H_DEFAULT;
 };
 
+// Converts floating point rgba values in [0, 1] to uint32 rgba/abgr number representation
+uint32_t PixelColor(double red, double green, double blue, double alpha);
+
 } // namespace rtc
 
 #endif

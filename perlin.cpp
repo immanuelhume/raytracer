@@ -36,8 +36,11 @@ double Perlin::Noise(const point &p) const
     return Lerp(c, u, v, w);
 }
 
+double Perlin::NoiseX(const point &p) const { return 0.5 * (1 + Noise(p)); }
+
 double Perlin::Turbulence(point p, int depth) const
 {
+    // TODO double check this implementation. It differs from https://lodev.org/cgtutor/randomnoise.html
     double accum = 0.0;
     double weight = 1.0;
 

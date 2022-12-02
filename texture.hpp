@@ -85,12 +85,25 @@ class Marble : public Noisy
 class Wood : public Noisy
 {
   public:
+    // create a wooden texture, where larger scale and f cause tighter "rings"
     Wood(double scale = 1.0, double f = 8.0);
     Wood(const rgb &c, double scale = 1.0, double f = 8.0);
     virtual rgb ValueAt(double u, double v, const point &p) const override;
 
   public:
     double f_;
+};
+
+class ImageTexture : public Texture
+{
+  public:
+    ImageTexture(const char *filename);
+    ImageTexture(const unsigned char *filedata, int size);
+    ~ImageTexture();
+    virtual rgb ValueAt(double u, double v, const point &p) const override;
+
+  public:
+    SDL_Surface *buf_ = nullptr;
 };
 
 } // namespace rtc

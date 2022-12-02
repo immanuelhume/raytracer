@@ -1,5 +1,4 @@
 #include "image.hpp"
-#include <SDL2/SDL_image.h>
 #include <glm/common.hpp>
 
 using namespace rtc;
@@ -41,8 +40,7 @@ bool Image::SavePNG(const std::string &filename) const
     return true;
 }
 
-// Converts floating point rgb values in [0, 1] to uint32 rgba/abgr number representation
-uint32_t PixelColor(double red, double green, double blue, double alpha)
+uint32_t rtc::PixelColor(double red, double green, double blue, double alpha)
 {
     red = glm::clamp(red, 0.0, 0.999) * 256;
     green = glm::clamp(green, 0.0, 0.999) * 256;

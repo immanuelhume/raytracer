@@ -4,18 +4,17 @@
 #include "material.hpp"
 #include "perf_timer.hpp"
 #include "sphere.hpp"
+#include "static/earthmap.hpp"
 #include <glm/gtc/random.hpp>
 
 using namespace rtc;
 
+// shades a sky-like background
 static rgb SkyBG(const Ray &ray);
 const char *rtc::sceneDesc[] = {"Randomly scattered balls", "Randomly scattered balls but some bounce",
-                                "Checkered texture demo", "Perlin noise demo"};
+                                "Checkered texture demo", "Perlin noise demo", "Earth image map"};
 const std::function<void(Scene &s)> rtc::scenes[] = {
-    RandomBalls,
-    RandomBouncingBalls,
-    CheckeredDemo,
-    NoiseDemo,
+    RandomBalls, RandomBouncingBalls, CheckeredDemo, NoiseDemo, EarthDemo,
 };
 
 // TODO: the multi-threading scenario is not always faster, figure out why
@@ -225,12 +224,12 @@ void rtc::CheckeredDemo(Scene &scene)
 
 void rtc::NoiseDemo(Scene &scene)
 {
-    auto turb = std::make_shared<Lambertian>(std::make_shared<Turbulence>(2));
+    auto turb = std::make_shared<Lambertian>(std::make_shared<Turbulence>(2.5));
     auto marb = std::make_shared<Lambertian>(std::make_shared<Marble>(Axis::z, 8));
     rgb nutmeg = rgb(0.398, 0.199, 0.0);
-    auto wood = std::make_shared<Lambertian>(std::make_shared<Wood>(nutmeg, 1.5, 10));
+    auto wood = std::make_shared<Lambertian>(std::make_shared<Wood>(nutmeg, 2, 18));
 
-    scene.world_.Add(std::make_shared<Sphere>(1000, point(0, -1000, 0), wood));
+    scene.world_.Add(std::make_shared<Sphere>(1000, point(0, -1000, 0), turb));
 
     scene.world_.Add(std::make_shared<Sphere>(1.5, point(1, 1.5, 0), turb));
 
@@ -243,7 +242,23 @@ void rtc::NoiseDemo(Scene &scene)
 
     scene.UpdateCamera([](Camera &c) {
         c.look_from_ = point(13, 2, 3);
-        c.look_at_ = point(0, 0.5, 1.5);
+        c.look_at_ = point(0, 0.5, 1.7);
+        c.vfov_ = glm::radians(20.0);
+        c.focus_dist_ = 10.0;
+    });
+}
+
+void rtc::EarthDemo(Scene &s)
+{
+    auto earth_texture = std::make_shared<ImageTexture>(kEarthMap, sizeof kEarthMap);
+    auto mat = std::make_shared<Lambertian>(earth_texture);
+    auto globe = std::make_shared<Sphere>(2.0, point(0, 0, 0), mat);
+
+    s.world_.Add(globe);
+
+    s.UpdateCamera([](Camera &c) {
+        c.look_from_ = point(13, 2, 3);
+        c.look_at_ = point(0, 0, 0);
         c.vfov_ = glm::radians(20.0);
         c.focus_dist_ = 10.0;
     });
