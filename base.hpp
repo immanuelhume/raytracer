@@ -15,6 +15,7 @@ using vec3 = glm::dvec3;
 
 const double epsilon = 1e-8;
 const double infinity = std::numeric_limits<double>::max();
+const double ninfinity = std::numeric_limits<double>::min();
 
 enum Axis
 {

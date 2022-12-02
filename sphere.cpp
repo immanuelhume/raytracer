@@ -40,7 +40,7 @@ bool Sphere::Hit(const Ray &ray, double tmin, double tmax, HitRecord &rec) const
     rec.mat_ = mat_;
 
     vec3 outward_normal = (rec.point_ - center) / radius_;
-    rec.set_face_normal(ray, outward_normal);
+    rec.SetFaceNormal(ray, outward_normal);
     GetUV(outward_normal, rec.u_, rec.v_);
 
     return true;

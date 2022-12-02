@@ -9,6 +9,7 @@
 #include "perf_timer.hpp"
 #include "sphere.hpp"
 #include "static/earthmap.hpp"
+#include "transform.hpp"
 #include <glm/gtc/random.hpp>
 
 using namespace rtc;
@@ -48,6 +49,32 @@ void Scene::Render(Image &image)
     double v_factor = 2.0 / (h_ - 1); // ditto
     double per_sample = 1.0 / samples_per_pixel_; // weight per sample
 #if 1
+    // std::vector<std::thread> threads;
+    // for (int n = 0; n < num_threads_; n++)
+    // {
+    //     threads.emplace_back([&image, this, n, u_factor, v_factor, per_sample]() {
+    //         for (int i = n; i < h_; i += this->num_threads_)
+    //         {
+    //             for (int j = 0; j < w_; j++)
+    //             {
+    //                 rgb p_color(0);
+    //                 for (int s = 0; s < samples_per_pixel_; s++)
+    //                 {
+    //                     // get our uv coordinates into [-1, 1] range
+    //                     double u = (j + rand_double()) * u_factor - 1;
+    //                     double v = (i + rand_double()) * v_factor - 1;
+    //                     p_color += RayColor(camera_.GetRay(u, v), max_depth_);
+    //                 }
+    //                 p_color *= per_sample;
+    //                 // what is this? gamma correction?
+    //                 image.SetPixel(i, j, glm::sqrt(p_color[0]), glm::sqrt(p_color[1]), glm::sqrt(p_color[2]), 1);
+    //             }
+    //         }
+    //     });
+    // }
+    // for (auto &thread : threads)
+    //     if (thread.joinable()) thread.join();
+
     // thread k will render every kth row
     int nt = thread_pool_.NumThreads();
     for (int n = 0; n < nt; n++)
@@ -296,8 +323,13 @@ void rtc::CornellBox(Scene &s)
     auto ceil = std::make_shared<XZRect>(0, 555, 0, 555, 555, white);
     auto lamp = std::make_shared<XZRect>(213, 343, 227, 332, 554, light);
 
-    auto box1 = std::make_shared<Box>(point(130, 0, 65), point(295, 165, 230), white);
-    auto box2 = std::make_shared<Box>(point(265, 0, 295), point(430, 330, 460), white);
+    std::shared_ptr<Hittable> box1 = std::make_shared<Box>(point(0, 0, 0), point(165, 330, 165), white);
+    box1 = std::make_shared<Rotate>(box1, Axis::y, glm::radians(15.0));
+    box1 = std::make_shared<Translate>(box1, vec3(265, 0, 295));
+
+    std::shared_ptr<Hittable> box2 = std::make_shared<Box>(point(0, 0, 0), point(165, 165, 165), white);
+    box2 = std::make_shared<Rotate>(box2, Axis::y, glm::radians(-18.0));
+    box2 = std::make_shared<Translate>(box2, vec3(130, 0, 65));
 
     s.world_.Add(left_wall);
     s.world_.Add(right_wall);

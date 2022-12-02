@@ -16,16 +16,16 @@ class HitRecord
   public:
     HitRecord() = default;
 
-    void set_face_normal(const Ray &ray, const vec3 &outward_normal)
+    void SetFaceNormal(const Ray &ray, const vec3 &outward_normal)
     {
         front_face_ = glm::dot(ray.dir_, outward_normal) < 0.0;
         normal_ = front_face_ ? outward_normal : -outward_normal;
     }
 
-    const vec3 &normal() const { return normal_; };
+    const vec3 &Normal() const { return normal_; };
 
     // returns true if the ray is incident to surface from the outside
-    bool front_face() const { return front_face_; }
+    bool FrontFace() const { return front_face_; }
 
   public:
     point point_;

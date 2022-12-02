@@ -27,7 +27,7 @@ bool XYRect::Hit(const Ray &ray, double tmin, double tmax, HitRecord &record) co
     record.v_ = (i.y - y0_) / (y1_ - y0_);
     record.mat_ = mat_;
     record.point_ = i;
-    record.set_face_normal(ray, vec3(0, 0, 1));
+    record.SetFaceNormal(ray, vec3(0, 0, 1));
 
     return true;
 }
@@ -57,7 +57,7 @@ bool XZRect::Hit(const Ray &ray, double tmin, double tmax, HitRecord &record) co
     record.v_ = (i.y - z0_) / (z1_ - z0_);
     record.mat_ = mat_;
     record.point_ = i;
-    record.set_face_normal(ray, vec3(0, 1, 0));
+    record.SetFaceNormal(ray, vec3(0, 1, 0));
 
     return true;
 }
@@ -87,7 +87,7 @@ bool YZRect::Hit(const Ray &ray, double tmin, double tmax, HitRecord &record) co
     record.v_ = (i.y - z0_) / (z1_ - z0_);
     record.mat_ = mat_;
     record.point_ = i;
-    record.set_face_normal(ray, vec3(1, 0, 0));
+    record.SetFaceNormal(ray, vec3(1, 0, 0));
 
     return true;
 }
