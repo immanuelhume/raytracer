@@ -37,9 +37,9 @@ inline double rand_double()
 // a random floating point number within some range
 inline double rand_double(const double min, const double max) { return min + (max - min) * rand_double(); }
 
-inline rgb rand_color() { return rgb(rand_double(0, 1), rand_double(0, 1), rand_double(0, 1)); }
+inline rgb rand_vec3() { return rgb(rand_double(0, 1), rand_double(0, 1), rand_double(0, 1)); }
 
-inline rgb rand_color(double min, double max)
+inline rgb rand_vec3(double min, double max)
 {
     return rgb(rand_double(min, max), rand_double(min, max), rand_double(min, max));
 }

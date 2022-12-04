@@ -78,6 +78,18 @@ class DiffuseLight : public Material
     std::shared_ptr<Texture> texture_;
 };
 
+// a kind of material which scatters light completely randomly
+class Isotropic : public Material
+{
+  public:
+    Isotropic(std::shared_ptr<Texture> texture);
+    Isotropic(const rgb &color);
+    virtual bool Scatter(const Ray &ray, const HitRecord &rec, rgb &attenuation, Ray &scattered) const override;
+
+  public:
+    std::shared_ptr<Texture> texture_;
+};
+
 } // namespace rtc
 
 #endif

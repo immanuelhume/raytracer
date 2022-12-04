@@ -3,6 +3,7 @@
 #include "base.hpp"
 #include "box.hpp"
 #include "bvh.hpp"
+#include "constant_medium.hpp"
 #include "hittable.hpp"
 #include "hittable_list.hpp"
 #include "material.hpp"
@@ -19,12 +20,15 @@ static rgb SkyBG(const Ray &ray);
 // returns solid black background
 static rgb BlackBG(const Ray &ray);
 
-const char *rtc::sceneDesc[] = {"Randomly scattered balls", "Randomly scattered balls but some bounce",
-                                "Checkered texture demo",   "Perlin noise demo",
-                                "Earth image map",          "Cornell box"};
-const std::function<void(Scene &s)> rtc::scenes[] = {
-    RandomBalls, RandomBouncingBalls, CheckeredDemo, NoiseDemo, EarthDemo, CornellBox,
-};
+const char *rtc::sceneDesc[] = {"Randomly scattered balls",
+                                "Randomly scattered balls but some bounce",
+                                "Checkered texture demo",
+                                "Perlin noise demo",
+                                "Earth image map",
+                                "Cornell box",
+                                "Final scene from second book"};
+const std::function<void(Scene &s)> rtc::scenes[] = {RandomBalls, RandomBouncingBalls, CheckeredDemo, NoiseDemo,
+                                                     EarthDemo,   CornellBox,          Book2};
 
 // TODO: the multi-threading scenario is not always faster, figure out why
 Scene::Scene() : bg_(SkyBG) {}
@@ -176,7 +180,7 @@ void AddRandomObjectsImpl(HittableList &list, bool bounce)
                 if (choose_mat < 0.8)
                 {
                     // diffuse
-                    auto albedo = rand_color() * rand_color();
+                    auto albedo = rand_vec3() * rand_vec3();
                     sphere_material = std::make_shared<Lambertian>(albedo);
                     if (bounce)
                     {
@@ -190,7 +194,7 @@ void AddRandomObjectsImpl(HittableList &list, bool bounce)
                 else if (choose_mat < 0.95)
                 {
                     // metal
-                    auto albedo = rand_color(0.5, 1);
+                    auto albedo = rand_vec3(0.5, 1);
                     auto fuzz = rand_double(0, 0.5);
                     sphere_material = std::make_shared<Metal>(albedo, fuzz);
                     list.Add(std::make_shared<Sphere>(0.2, position, sphere_material));
@@ -347,6 +351,73 @@ void rtc::CornellBox(Scene &s)
         c.look_at_ = point(278, 278, 0);
         c.vfov_ = glm::radians(40.0);
         c.focus_dist_ = 10.0;
+    });
+}
+
+void rtc::Book2(Scene &s)
+{
+    // floor
+    HittableList boxes1;
+    auto ground = std::make_shared<Lambertian>(rgb(0.48, 0.83, 0.53));
+
+    int boxes_per_side = 20;
+    for (int i = 0; i < boxes_per_side; i++)
+    {
+        for (int j = 0; j < boxes_per_side; j++)
+        {
+            double w = 100.0; // box width
+            double x0 = -1000.0 + i * w;
+            double z0 = -1000.0 + j * w;
+            double y0 = 0.0;
+            double x1 = x0 + w;
+            double y1 = rand_double(1, 101); // each box has a random height
+            double z1 = z0 + w;
+
+            boxes1.Add(std::make_shared<Box>(point(x0, y0, z0), point(x1, y1, z1), ground));
+        }
+    }
+
+    s.world_.Add(std::make_shared<BVHNode>(boxes1, 0, 1));
+
+    auto center1 = point(400, 400, 200);
+    auto center2 = center1 + vec3(30, 0, 0);
+    auto moving_sphere_material = std::make_shared<Lambertian>(rgb(0.7, 0.3, 0.1));
+    s.world_.Add(std::make_shared<Sphere>(50.0, std::make_shared<Parabolic>(1.0, 0.0, center1, center2),
+                                          moving_sphere_material));
+
+    s.world_.Add(std::make_shared<Sphere>(50.0, point(260, 150, 45), std::make_shared<Dielectric>(1.5)));
+    s.world_.Add(std::make_shared<Sphere>(50.0, point(0, 150, 145), std::make_shared<Metal>(rgb(0.8, 0.8, 0.9), 1.0)));
+
+    auto boundary = std::make_shared<Sphere>(70.0, point(360, 150, 145), std::make_shared<Dielectric>(1.5));
+    s.world_.Add(boundary);
+    s.world_.Add(std::make_shared<ConstantMedium>(boundary, rgb(0.2, 0.4, 0.9), 0.2));
+    // fill the entire world with some smoke
+    boundary = std::make_shared<Sphere>(5000, point(0, 0, 0), std::make_shared<Dielectric>(1.5));
+    s.world_.Add(std::make_shared<ConstantMedium>(boundary, rgb(1, 1, 1), 0.0001));
+
+    auto emat = std::make_shared<Lambertian>(std::make_shared<ImageTexture>(kEarthMap, sizeof kEarthMap));
+    s.world_.Add(std::make_shared<Sphere>(100, point(400, 200, 400), emat));
+    auto pertext = std::make_shared<Noisy>(0.1);
+    s.world_.Add(std::make_shared<Sphere>(80.0, point(220, 280, 300), std::make_shared<Lambertian>(pertext)));
+
+    HittableList boxes2;
+    auto white = std::make_shared<Lambertian>(rgb(.73, .73, .73));
+    int ns = 1000;
+    for (int j = 0; j < ns; j++) { boxes2.Add(std::make_shared<Sphere>(10.0, rand_vec3(0, 165), white)); }
+
+    s.world_.Add(std::make_shared<Translate>(
+        std::make_shared<Rotate>(std::make_shared<BVHNode>(boxes2, 0.0, 1.0), Axis::y, glm::radians(15.0)),
+        vec3(-100, 270, 395)));
+
+    auto light = std::make_shared<DiffuseLight>(rgb(7, 7, 7));
+    s.world_.Add(std::make_shared<XZRect>(123, 423, 147, 412, 554, light));
+    s.bg_ = BlackBG;
+
+    s.UpdateCamera([](Camera &c) {
+        c.look_from_ = point(478, 278, -600);
+        c.look_at_ = point(278, 278, 0);
+        c.vfov_ = glm::radians(40.0);
+        c.focus_dist_ = 630.0;
     });
 }
 

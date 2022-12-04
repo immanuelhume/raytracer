@@ -1,4 +1,8 @@
-This is yet another follow-along of Peter Shirley's [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html) series, with a few more bells and whistles.
+This is yet another follow-along of Peter Shirley's [Ray Tracing in One Weekend](https://raytracing.github.io/books/RayTracingInOneWeekend.html) series, with a few more bells and whistles such as multithreading and an SDL window.
+Some parts of the second book were quite opaque, and these articles by Scratchapixel helped a ton:
+
+- [Interpolation](https://www.scratchapixel.com/lessons/mathematics-physics-for-computer-graphics/interpolation)
+- [Procedural noise](https://www.scratchapixel.com/lessons/procedural-generation-virtual-worlds/procedural-patterns-noise-part-1)
 
 ```
 Usage: rtc [OPTION...]
@@ -19,5 +23,6 @@ Mandatory or optional arguments to long options are also mandatory or optional
 for any corresponding short options.
 ```
 
-![Final render from book1](notes/checkered-floor.png)
+![Final render from book 1](notes/checkered-floor.png)
 ![Perlin noise demo](notes/noise.png)
+![Final render from book 2](notes/book2.png)

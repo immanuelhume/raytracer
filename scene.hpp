@@ -68,6 +68,9 @@ void EarthDemo(Scene &);
 
 void CornellBox(Scene &);
 
+// final scene of book 2 (the next week)
+void Book2(Scene &);
+
 enum SceneDemo
 {
     kRandomBalls = 0,
@@ -76,6 +79,7 @@ enum SceneDemo
     kNoise,
     kEarth,
     kCornellBox,
+    kBook2,
 
     kLast, // helps keep track of how many scenes we have
 };
